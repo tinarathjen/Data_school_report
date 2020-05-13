@@ -1,0 +1,115 @@
+---
+title: Investigating flowering time in wheat under controlled environment conditions
+subtitle: 
+short_title: Optional short title # Delete if not required
+
+author:  Tina Rathjen
+affiliation: Agriculture and Food
+photo: resources/wheat_trial.jpg
+
+output: DSreport::project_summary
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  results = 'asis',
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE,
+  fig.align = 'center'
+)
+
+#Load libraries
+library(tidyverse)
+library(gapminder)
+library(kableExtra)
+```
+
+
+# Introduction
+My name is Tina Rathjen. I am a Research Project Officer and I am presently working on a project within the GRDC's National Phenology Initiative. I have been working as a molecular biologist for over 25 years working on both animal and plant systems. The last 10 years worked at CSIRO and have worked on several projects investigating wheat development. Prior to data school I had not done any coding and could not code in R. I was primarily carrying out lab and field experiments and saving and analysing data using Excel. Data School FOCUS has opened my eyes to a whole new world of data analysis and I hope to use this as a starting off point to learn new and exciting things. I have absolutely loved Data School!
+
+# My Project
+I work on a project within the GRDC's National Phenology Initiative which aims to predict flowering time of wheat and barley cultivars in different environments around Australia.
+Wheat and barley cultivars have an optimal flowering window. Crops that flower too early can have reduced yield due to insufficient biomass accummulation and exposure to cold or frost events. Crops that flower too late risk being exposed to water stress or heat events. Growers require accurate information to select the correct cultivar and sowing date for their conditions.
+Currently for new cultivars it takes multiple field trials carried out in many regions across several growing seasons to acccumulate sufficient data to predict flowering time. Therefore cultivars can be released without growers having knowlegde of what is the correct sowing times for their conditions.
+APSIM models have been developed that can use parameters derived from data collected from controlled environment conditions to model cultivar flowering times across various environmental conditions around australia. 
+
+
+
+
+In order to build this demo poster correctly, you will also need to have installed the `tidyverse`, 
+`gapminder`, and `kableExtra` packages.
+
+## Preliminary results
+
+This section will demonstrate the different visuals you might want use to show off your 
+project. Don't feel the need to go overboard, this is supposed to give a taste of the work you are
+doing rather than being a publication ready document.
+
+To get tables formatting correctly, use `knitr::kable` to convert the table to html format. If
+you also want to have alternate row highlighting, pass the result to `kable_styling('striped')` 
+from the `kableExtra` package.
+
+**Tables**
+```{r mytable, out.width='100%', echo = T}
+knitr::kable(head(gapminder, n = 5), format = "html", caption = "Table 1. Spikelet Data") %>% 
+  kable_styling("striped")
+```
+
+**Images from a file**
+
+![](resources/img/tidyverse.png){width=100px}
+
+**Plots from R**
+```{r standard-plot, out.width='60%', fig.align='center', fig.height= 4, fig.width=6, fig.cap="Yet another gapminder plot"}
+gapminder %>% 
+  filter(year == 1987) %>% 
+  ggplot(aes(x = gdpPercap, y = lifeExp, colour = continent, size = pop)) +
+  geom_point() +
+  scale_x_log10(labels = function(b) format(b, scientific = F)) +
+  scale_size(trans = "sqrt", guide = "none") +
+  scale_color_brewer(palette = "Set1") +
+  theme_linedraw() +
+  theme(legend.position = "bottom")
+```
+
+Your figure and table captions are automatically numbered and can be referenced in the text
+if needed: see eg. Table \@ref(tab:mytable) and Figure \@ref(fig:standard-plot)
+
+# My Digital Toolbox
+
+What digital tools have you been using in your project? Do you expect that everything will be able 
+to be completed within R, or will you need to work with multiple tools to get the right result?
+Which of the digital skills needed for your project have you learned since starting Data School?
+
+You can use all the usual R markdown features in writing a project summary, including lists:
+
+* R - dplyr, ggplot, ...
+* Python
+* SQL
+
+## Favourite tool (optional)
+
+Is there a tool/package/function in particular that you've enjoyed using? Give it a special shout out here. What about this tool makes it your favourite?
+
+![](https://raw.githubusercontent.com/tidyverse/ggplot2/master/man/figures/logo.png){.pull-right width=100px}
+
+No prizes for guessing mine:
+
+# My time went ...
+
+What parts of your project take the most time and effort? Were there any surprising challenges you
+encountered, and how did you solve them?
+
+# Next steps
+
+What further steps do you wish your project could take? Or are there any new digital skills that you
+are keen to develop as a result of your involvement in the Data School?
+
+# My Data School Experience
+
+This summary is mostly about your project. However we would also like to hear about other
+parts of your Data School experience. What aspects of the program did you really enjoy? Have you
+tried applying the skills you have learned in your daily work? Have you been able to transfer this 
+knowledge to your team members? Any descriptions of the personal impact the program has 
+had are welcome here as well!
