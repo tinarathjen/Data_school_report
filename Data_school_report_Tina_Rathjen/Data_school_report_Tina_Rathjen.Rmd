@@ -26,13 +26,14 @@ library(kableExtra)
 
 
 # Introduction
-My name is Tina Rathjen. I am a Research Project Officer and I am presently working on a project within the GRDC's National Phenology Initiative. I have been working as a molecular biologist for over 25 years working on both animal and plant systems. The last 10 years worked at CSIRO and have worked on several projects investigating wheat development. Prior to data school I had not done any coding and could not code in R. I was primarily carrying out lab and field experiments and saving and analysing data using Excel. Data School FOCUS has opened my eyes to a whole new world of data analysis and I hope to use this as a starting off point to learn new and exciting things. I have absolutely loved Data School!
+My name is Tina Rathjen. I am a Research Project Officer and I am presently working on a project within the GRDC's National Phenology Initiative. I have been working as a molecular biologist for over 25 years working on both animal and plant systems. The last 10 years I have worked at CSIRO and have worked on several projects investigating different aspects of wheat, which involved me primarily carrying out lab, glasshouse and field experiments. Previously data generated has been entered and analysed using Excel and prior to data school I had not done any coding in R. Data School FOCUS has opened my eyes to a whole new world of data analysis and I hope to use this as a starting off point to learn new and exciting things. I have absolutely loved Data School!
 
 # My Project
-I work on a project within the GRDC's National Phenology Initiative which aims to predict flowering time of wheat and barley cultivars in different environments around Australia.
-Wheat and barley cultivars have an optimal flowering window. Crops that flower too early can have reduced yield due to insufficient biomass accummulation and exposure to cold or frost events. Crops that flower too late risk being exposed to water stress or heat events. Growers require accurate information to select the correct cultivar and sowing date for their conditions.
-Currently for new cultivars it takes multiple field trials carried out in many regions across several growing seasons to acccumulate sufficient data to predict flowering time. Therefore cultivars can be released without growers having knowlegde of what is the correct sowing times for their conditions.
-APSIM models have been developed that can use parameters derived from data collected from controlled environment conditions to model cultivar flowering times across various environmental conditions around australia. 
+I work on a project within the GRDC's National Phenology Initiative which aims to predict the flowering time of wheat and barley cultivars in different environmental conditions around Australia.
+
+Wheat and barley cultivars have an optimal flowering window. Crops that flower too early can have reduced yield due to insufficient biomass accummulation and exposure to cold or frost events. Crops that flower too late risk being exposed to water stress or heat events. Growers require accurate information to select the correct cultivar and sowing date for their conditions. Currently for new cultivars it takes many field trials carried out in many regions across several growing seasons to acccumulate sufficient data to predict flowering time. Currently cultivars can be released without prior to trials being carried out and therefore growers won't have the knowledgee of what is the correct sowing times for their region.
+
+It is known that major environmental factors influencing flowering time include thermal time, photoperiod and vernalisation. APSIM models have been developed that use parameters based on these factors to model cultivar flowering times.  It is the aim of this project to improve & modify the existing APSIM models of wheat and barley. This experiment involves a controlled temperature experiment being carried out on 54 current or past Australian wheat cultivars and 15 Wheat NILs (Near Isogenic Lines) under four differnet environmental conditions. Data generated from this study together with genomic data will be used to identify molecular markers important in predicting flowering time. The aim is to develop future APSIM models based on parameterisation with molecular marker, controlled environment and/or genomic data to more accurately prediction of flowering time. 
 
 
 
@@ -41,7 +42,7 @@ In order to build this demo poster correctly, you will also need to have install
 `gapminder`, and `kableExtra` packages.
 
 ## Preliminary results
-
+The controlled experiment data involved collecting data on several traits, including flowering and heading dates, final leaf number, final spikelet number and haun scores throughout development. It also included temperature data generated from a TinyTag temperature logger. The raw data was separated into files and analysed to determine the effects of vernalisation and photoperiod on the various traits.
 This section will demonstrate the different visuals you might want use to show off your 
 project. Don't feel the need to go overboard, this is supposed to give a taste of the work you are
 doing rather than being a publication ready document.
@@ -98,13 +99,11 @@ No prizes for guessing mine:
 
 # My time went ...
 
-What parts of your project take the most time and effort? Were there any surprising challenges you
-encountered, and how did you solve them?
+My time went on understanding the data and tidying it so I could attempt to work out what it meant. I also spent a large amount of time working out scripts to calculate the parameters. I especially spent time tring to learn about functions and using linear models to determine the parameter BasePhyllochron, I needed a lot of help to get the scripts to work. (Thanks Aswin)
+
 
 # Next steps
-
-What further steps do you wish your project could take? Or are there any new digital skills that you
-are keen to develop as a result of your involvement in the Data School?
+I am planning to learn how to use Tassel to carry out GWAS (Genome-wide Association Studies) to identify the molecular markers linked to the parameters I have calculated.  I would love to learn more and find more uses for R, this is only the start of my journey. 
 
 # My Data School Experience
 
