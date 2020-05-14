@@ -8,14 +8,12 @@ library(lubridate)
 library(modelr)
 library(broom)
 
-#set working directory
 
-setwd("C:/Users/rat05a/DATA School FOCUS/Controlled_temp_data")
 
 #Upload files
-haundata <- read_xlsx("Rawdata/haundata.xlsx")
-tempdata <- read_csv("Rawdata/Soilandtemp_data.csv",skip = 1)
-restdata <- read_xlsx("Rawdata/controlled_temp_data_without_haun.xlsx")
+haundata <- read_xlsx("data/rawdata/haundata.xlsx")
+tempdata <- read_csv("data/rawdata/Soilandtemp_data.csv",skip = 1)
+maindata <- read_xlsx("data/Rawdata/controlled_temp_data_without_haun.xlsx")
 
 
 ###################Fixing column headers and column types#######################
@@ -23,7 +21,7 @@ restdata <- read_xlsx("Rawdata/controlled_temp_data_without_haun.xlsx")
 #note MS=mainstem, t1=tiller1, fwr=flowering, spk=Spikelet number, hd=heading
 
 
-maindata2 <- rename(restdata, 
+maindata <- rename(maindata, 
       haun="Haun Stage", 
       emerg_date="Emergence date", 
       obs_date="Date",
@@ -42,7 +40,7 @@ maindata2 <- rename(restdata,
       genotype="Genotype") %>% 
       mutate(obs_date = ymd(obs_date), emerg_date=ymd(emerg_date))
 
-haundata2 <- haundata %>% 
+haundata <- haundata %>% 
    rename(environment="Environment",
           reps="Reps",
           genotype="Genotype",
@@ -51,7 +49,7 @@ haundata2 <- haundata %>%
           obs_date="Date") %>%
    mutate(obs_date = ymd(obs_date), emerg_date=ymd(emerg_date)) 
    
-tempdata2 <- tempdata %>% 
+tempdata <- tempdata %>% 
    separate(AirTemp1,into=c("AirTemp1", "X"),sep = " " ) %>% 
    separate(AirTemp2,into=c("AirTemp2", "X2"),sep = " " ) %>% 
    separate(SoilTemp1,into=c("SoilTemp1", "X3"),sep = " " ) %>% 
@@ -68,83 +66,59 @@ tempdata2 <- tempdata %>%
 ###############################Temp data ######################################
 
 #Converting temp to long format
-Tempdata_long <- tempdata2 %>% gather(key="Temp",value = Degree_C,AirTemp1,SoilTemp1,AirTemp2,SoilTemp2) %>% 
+Tempdata_long <- tempdata %>% gather(key="Temp",value = Degree_C,AirTemp1,SoilTemp1,AirTemp2,SoilTemp2) %>% 
    filter(Degree_C !="NA")
 
 
-#mean temperature on each date
+#mean temperature on each date plus thermal time
 
 tempdata_mean <- Tempdata_long %>%
    filter(Temp=="AirTemp1" | Temp=="AirTemp2") %>% 
    group_by(environment,date) %>%
-   summarise(ave_daily_temp=mean(Degree_C))
-
-
-#max and min temp each day
-tempdata_min_max <- 
-   Tempdata_long %>% 
-   filter(Temp=="AirTemp1" | Temp=="AirTemp2") %>% 
-   group_by(environment,date) %>%
-      summarise(min_daily_temp=min(Degree_C),max_daily_temp=max(Degree_C))
-   
-   
-  
-#thermal time
-    
-Tempdata_thermaltime_mean <- tempdata_mean %>%
+   summarise(ave_daily_temp=mean(Degree_C))%>%
    mutate("thermaltime"=cumsum(ave_daily_temp))
 
-Tempdata_thermaltime_mm <- tempdata_min_max %>%
-   mutate("thermaltime"=cumsum((min_daily_temp+max_daily_temp)/2))
+
+  
+ 
+
 
 #creating two duplicate files, one for observance, one for emergence
 
-Tempdata_emerg <- Tempdata_thermaltime_mean%>%
+Tempdata_emerg <- tempdata_mean%>%
    rename(emerg_date="date", emerg_tt="thermaltime")%>%
    select(1,2,4)
 
-Tempdata_obs<- Tempdata_thermaltime_mean %>%
+Tempdata_obs<- tempdata_mean %>%
    rename(obs_date="date", obs_tt="thermaltime") %>%
    select(1,2,4)
 
-Tempdata_emerg2 <- Tempdata_thermaltime_mm%>%
-   rename(emerg_date="date", emerg_tt="thermaltime")%>%
-   select(1,2,4)
-
-Tempdata_obs2<- Tempdata_thermaltime_mm %>%
-   rename(obs_date="date", obs_tt="thermaltime") %>%
-   select(1,2,4)
 
 ##############################haundata################################
 
 #creating column of number of days (obs date minus emergence date)
-haundata3 <- mutate(haundata2, days=obs_date - emerg_date)
+haundata <- mutate(haundata, days=obs_date - emerg_date)
 
 #Exporting to csv
 
-write_csv(haundata3, "C:/Users/rat05a/DATA School FOCUS/Controlled_temp_data/Analysed_data/Haun_data_days.csv")
+write_csv(haundata, "data/analysed_data/Haun_data_days.csv")
 
 
 
 #adding thermal temp to haun score, calculating change tt
 
-haun_temp <- left_join(haundata2,Tempdata_obs,
+haun_temp <- left_join(haundata,Tempdata_obs,
                        by=c("environment"="environment","obs_date"="obs_date") ) %>% 
              left_join(Tempdata_emerg,
                        by=c("environment"="environment","emerg_date"="emerg_date") ) %>%
              mutate(tt_haun=obs_tt-emerg_tt) %>%
-             select(1,2,3,6,9)
+             select(1,2,3,6,10)
                      
-haun_temp2 <- left_join(haundata2,Tempdata_obs,
-                       by=c("environment"="environment","obs_date"="obs_date") ) %>% 
-   left_join(Tempdata_emerg,
-             by=c("environment"="environment","emerg_date"="emerg_date") ) %>%
-   mutate(tt_haun=obs_tt-emerg_tt) %>%
-   select(1,2,3,6,9)
-#Exporting to csv
-write_csv(haun_temp, "C:/Users/rat05a/DATA School FOCUS/Controlled_temp_data/Analysed_data/Haun_thermal_time.csv")
 
-write_csv(haun_temp2, "C:/Users/rat05a/DATA School FOCUS/Controlled_temp_data/Analysed_data/Haun_thermal_time_MaxMin.csv")
+#Exporting to csv
+write_csv(haun_temp, "data/analysed_data/Haun_temp.csv")
+
+
 
 
 ########################Final_leaf_data ########################
@@ -152,11 +126,11 @@ write_csv(haun_temp2, "C:/Users/rat05a/DATA School FOCUS/Controlled_temp_data/An
 
 
 
-final_leaf <- filter(maindata2,final_leaf!="NA") %>% select(1:3,14)
+final_leaf <- filter(maindata,final_leaf!="NA") %>% select(1:3,14)
 
 #exporting to csv
 
-write_csv(final_leaf, "C:/Users/rat05a/DATA School FOCUS/Controlled_temp_data/Analysed_data/Final_leaf.csv")
+write_csv(final_leaf, "data/analysed_data/final_leaf.csv")
 
 ###mean final leaf####
 
@@ -165,18 +139,18 @@ mean_final_leaf <- group_by(final_leaf, environment, genotype) %>%
    
    summarise(mean_final_leaf=mean(final_leaf))
 
-write_csv(mean_final_leaf, "C:/Users/rat05a/DATA School FOCUS/Controlled_temp_data/Analysed_data/Mean_Final_leaf.csv")
+write_csv(mean_final_leaf, "data/analysed_data/mean_final_leaf.csv")
 
 
 
 
 #########################Maindata separated into spikelet and flowering/heading
 
-#remaining data in two new file, all values that are dates in one, spikelet in second
+#remaining data in two new files, all values that are dates in one, spikelet in second
 
 
-maindata_date <- select(maindata2, 1:4,8:13)
-maindata_spikelet <- select(maindata2, 1:5,15,16)
+maindata_date <- select(maindata, 1:4,8:13)
+maindata_spikelet <- select(maindata, 1:5,15,16)
 
 
 
@@ -185,7 +159,7 @@ spikelet_long <- gather(maindata_spikelet,key=type, value=spikelet_no,spk_MS, sp
    filter(spikelet_no!="NA") %>% 
    select(1,2,3,6,7) 
 
-write_csv(spikelet_long, "C:/Users/rat05a/DATA School FOCUS/Controlled_temp_data/Analysed_data/Spikelet_data.csv")
+write_csv(spikelet_long, "data/analysed_data/spikelet_data.csv")
 
 
 
@@ -197,36 +171,48 @@ maindata_long <-  (gather(maindata_date, key=obs_type, value=obs_date,
    mutate(obs_date = ymd(obs_date))
 
 
-write_csv(maindata_long, "C:/Users/rat05a/DATA School FOCUS/Controlled_temp_data/Analysed_data/Floweringdate_and_headingdate_data.csv")
+write_csv(maindata_long, "data/analysed_data/Flw__hd_date.csv")
 
 ##Flowering and heading with thermal time
-glimpse(maindata_long)
-glimpse(Tempdata_emerg)
-glimpse(Tempdata_obs)
 
-flowering_heading_tt <- left_join(maindata_long,Tempdata_obs,
+
+fwr_hd_tt <- left_join(maindata_long,Tempdata_obs,
                                   by=c("environment"="environment","obs_date"="obs_date") ) %>% 
                         left_join(Tempdata_emerg,
                                   by=c("environment"="environment","emerg_date"="emerg_date") ) %>%
                         mutate(thermaltime=obs_tt-emerg_tt) %>%
                         select(1,2,3,5,9) %>% filter(thermaltime!="NA")
 
-write_csv(flowering_heading_tt, "C:/Users/rat05a/DATA School FOCUS/Controlled_temp_data/Analysed_data/Floweringdate_and_headingdate_tt_data.csv")
+write_csv(fwr_hd_tt, "data/analysed_data/fwr_hd_tt.csv")
 
 
-########## one file, is this useful?#######no haun data, can add slope in later####
+########## all data in one file for Rmarkdown report, wide format (excludes haun)
 
 glimpse(flowering_heading_tt)
 glimpse(spikelet_long)
 glimpse(final_leaf)
 glimpse(haun_temp)
 
-all_data <-  full_join(flowering_heading_tt, spikelet_long,
+
+fwr_tt <- fwr_hd_tt %>% 
+   filter(obs_type=="fwr_MS" | obs_type=="fwr_t1") %>%
+   filter(thermaltime!="NA") %>% rename(flw_tt= 'thermaltime' ) %>% 
+   select(1:3, 5)
+
+hd_tt <- fwr_hd_tt %>% 
+   filter(obs_type=="hd_MS" | obs_type=="hd_t1") %>%
+   filter(thermaltime!="NA") %>% rename(hd_tt= 'thermaltime' ) %>% 
+   select(1:3, 5)
+   
+all_data_wide <-  full_join(fwr_tt, hd_tt,
              by=c("environment"="environment","reps"="reps","genotype"="genotype") ) %>% 
              full_join(final_leaf,
-             by=c("environment"="environment","reps"="reps","genotype"="genotype") ) 
+             by=c("environment"="environment","reps"="reps","genotype"="genotype") ) %>% 
+             full_join(spikelet_long,
+             by=c("environment"="environment","reps"="reps","genotype"="genotype") ) %>% select (1:6, 8)
 
-write_csv(all_data, "C:/Users/rat05a/DATA School FOCUS/Controlled_temp_data/Analysed_data/all_data.csv")
+
+write_csv(all_data_wide, "data/analysed_data/all_data_wide.csv")
 
 #######Advice from Aswin to clear the Environment ###########################
 #How to clear the environment
