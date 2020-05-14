@@ -5,9 +5,12 @@ short_title: Optional short title # Delete if not required
 
 author:  Tina Rathjen
 affiliation: Agriculture and Food
-photo: resources/wheat_trial.jpg
+photo: resources/img/wheat_trial.jpg
 
 output: DSreport::project_summary
+html_document:
+  code_folding: hide
+ 
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
@@ -26,40 +29,56 @@ library(kableExtra)
 
 
 # Introduction
-My name is Tina Rathjen. I am a Research Project Officer and I am presently working on a project within the GRDC's National Phenology Initiative. I have been working as a molecular biologist for over 25 years working on both animal and plant systems. The last 10 years I have worked at CSIRO and have worked on several projects investigating different aspects of wheat, which involved me primarily carrying out lab, glasshouse and field experiments. Previously data generated has been entered and analysed using Excel and prior to data school I had not done any coding in R. Data School FOCUS has opened my eyes to a whole new world of data analysis and I hope to use this as a starting off point to learn new and exciting things. I have absolutely loved Data School!
+My name is Tina Rathjen. I am a Research Project Officer and I am presently working on a project within the GRDC's National Phenology Initiative. I have been working as a molecular biologist for over 25 years working on both animal and plant systems. The last 10 years I have worked at CSIRO and have worked on several projects investigating different aspects of wheat, which involved me primarily carrying out lab, glasshouse and field experiments. Previously data generated has been entered and analysed using Excel and prior to data school I had not done any coding in R. Data School FOCUS has opened my eyes to a whole new world of data analysis and I hope to use this as a starting point to learn new and exciting things. I have absolutely loved Data School!
 
 # My Project
 I work on a project within the GRDC's National Phenology Initiative which aims to predict the flowering time of wheat and barley cultivars in different environmental conditions around Australia.
 
-Wheat and barley cultivars have an optimal flowering window. Crops that flower too early can have reduced yield due to insufficient biomass accummulation and exposure to cold or frost events. Crops that flower too late risk being exposed to water stress or heat events. Growers require accurate information to select the correct cultivar and sowing date for their conditions. Currently for new cultivars it takes many field trials carried out in many regions across several growing seasons to acccumulate sufficient data to predict flowering time. Currently cultivars can be released without prior to trials being carried out and therefore growers won't have the knowledgee of what is the correct sowing times for their region.
+Wheat and barley cultivars have an optimal flowering window. Crops that flower too early can have reduced yield due to insufficient biomass accummulation and exposure to cold or frost events. Crops that flower too late risk being exposed to water stress or heat events. Growers require accurate information to select the correct cultivar and sowing date for their conditions. For new cultivars it many take several years to conduct field trials across many regions to acccumulate sufficient data to predict flowering time. Currently cultivars can be released prior to trials being carried out and therefore growers may not have the knowledge of which cultivar to plant and what is the correct time of sowing for their conditions.
 
-It is known that major environmental factors influencing flowering time include thermal time, photoperiod and vernalisation. APSIM models have been developed that use parameters based on these factors to model cultivar flowering times.  It is the aim of this project to improve & modify the existing APSIM models of wheat and barley. This experiment involves a controlled temperature experiment being carried out on 54 current or past Australian wheat cultivars and 15 Wheat NILs (Near Isogenic Lines) under four differnet environmental conditions. Data generated from this study together with genomic data will be used to identify molecular markers important in predicting flowering time. The aim is to develop future APSIM models based on parameterisation with molecular marker, controlled environment and/or genomic data to more accurately prediction of flowering time. 
-
-
+It is known that major environmental factors influencing flowering time include thermal time, photoperiod and vernalisation. APSIM models have been developed that use parameters based on these factors to model cultivar flowering times.  It is the aim of this project to improve & modify the existing APSIM models of wheat and barley. This project involved four controlled temperature experiments being carried out on 54 Australian wheat cultivars and 15 Wheat NILs (Near Isogenic Lines). Data generated from this study together with genomic data will be used to identify molecular markers important in predicting flowering time. The aim is to in the future develop improved APSIM models based on parameterisation with molecular markers, controlled environment and/or genomic data to more accurately predict flowering time. 
 
 
-In order to build this demo poster correctly, you will also need to have installed the `tidyverse`, 
-`gapminder`, and `kableExtra` packages.
 
 ## Preliminary results
-The controlled experiment data involved collecting data on several traits, including flowering and heading dates, final leaf number, final spikelet number and haun scores throughout development. It also included temperature data generated from a TinyTag temperature logger. The raw data was separated into files and analysed to determine the effects of vernalisation and photoperiod on the various traits.
-This section will demonstrate the different visuals you might want use to show off your 
-project. Don't feel the need to go overboard, this is supposed to give a taste of the work you are
-doing rather than being a publication ready document.
 
-To get tables formatting correctly, use `knitr::kable` to convert the table to html format. If
-you also want to have alternate row highlighting, pass the result to `kable_styling('striped')` 
-from the `kableExtra` package.
+The controlled experiments were carried out under four environmental conditions, SN (short days, no vernalisation), LN (long days, no vernalisation, SV (short days plus vernalisation) and LV (long days plus vernalisation) to determine the influence of photoperiod and vernalisation on flowering times and linked traits. Traits measured include emergence date, flowering date, heading date, final leaf number and spikelet number. In addition haun stage, a measure of developmental growth stage based on leaf emergence, was recorded every third day from emergence to flowering. I have used the R package in tidyverse to clean and tidy the data. I have also converted dates to accumulated thermal time (degree days). Table 1 shows a representation of the trait data including flowering time, heading time, spikelet number and final leaf number. Table 2 shows a representation of the haun stage data.
+
 
 **Tables**
-```{r mytable, out.width='100%', echo = T}
-knitr::kable(head(gapminder, n = 5), format = "html", caption = "Table 1. Spikelet Data") %>% 
+```{r all_data_wide, out.width='100%', echo=TRUE }
+
+all_data_wide <- read_csv("data/analysed_data/all_data_wide.csv") %>% 
+  rename(Genotype="genotype", Environment="environment", 
+         Rep="reps", 
+         'Thermal time to flowering'="flw_tt",
+         'Thermal time to heading'="hd_tt",
+         'Final leaf number'="final_leaf",
+         'Spikelet number' = "spikelet_no")
+
+knitr::kable(head(all_data_wide, n = 5), format = "html", caption = "Controlled Environment Data") %>% 
+  kable_styling("striped")
+```
+
+```{r haun_data_wide, out.width='100%', echo = TRUE }
+
+haun_data_wide <- read_csv("data/analysed_data/Haun_temp.csv") %>% 
+  rename(Genotype="genotype", Environment="environment", 
+         Rep="reps", 
+         'Thermal time to measurement'="tt_haun",
+         'Haun stage'="haun") %>%  filter(Genotype=="EMU_ROCK",Rep== 1)
+
+knitr::kable(head(haun_data_wide, n = 5), format = "html", caption = "Haun Stage Data") %>% 
   kable_styling("striped")
 ```
 
 **Images from a file**
 
 ![](resources/img/tidyverse.png){width=100px}
+![](https://raw.githubusercontent.com/tidyverse/ggplot2/master/man/figures/logo.png){width=90px}
+
+
+
 
 **Plots from R**
 ```{r standard-plot, out.width='60%', fig.align='center', fig.height= 4, fig.width=6, fig.cap="Yet another gapminder plot"}
