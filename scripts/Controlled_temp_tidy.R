@@ -212,7 +212,7 @@ all_data_wide <-  full_join(fwr_tt, hd_tt,
              by=c("environment"="environment","reps"="reps","genotype"="genotype") ) %>% select (1:6, 8)
 
 
-write_csv(all_data_wide, "data/analysed_data/all_data_wide.csv")
+write_csv(all_data_wide, "Data_school_report_Tina_Rathjen/resources/img/all_data_wide.csv")
 
 #######Advice from Aswin to clear the Environment ###########################
 #How to clear the environment
