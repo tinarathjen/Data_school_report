@@ -141,7 +141,16 @@ mean_final_leaf <- group_by(final_leaf, environment, genotype) %>%
 
 write_csv(mean_final_leaf, "data/analysed_data/mean_final_leaf.csv")
 
+final_leaf_tt <- filter(maindata,final_leaf!="NA") %>% 
+   select(1:5,14) %>% 
+   left_join(Tempdata_obs,
+             by=c("environment"="environment","obs_date"="obs_date") ) %>% 
+   left_join(Tempdata_emerg,
+             by=c("environment"="environment","emerg_date"="emerg_date") ) %>% 
+   mutate(tt_final_leaf=obs_tt-emerg_tt) %>%
+   select(1:3,6,9)
 
+write_csv(final_leaf_tt, "data/analysed_data/final_leaf_tt.csv")
 
 
 #########################Maindata separated into spikelet and flowering/heading
