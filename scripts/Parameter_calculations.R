@@ -142,6 +142,23 @@ write_csv(Parameter_6, "data/analysed_data/Parameter_6.csv")
 
 ###Parameter7#############
 
+tt_flag_flower_pp <- flw_half %>% 
+  full_join(final_leaf_tt,by=c("genotype", "environment", "reps")) %>% 
+  filter(environment=="LV"| environment=="SV") %>% 
+  mutate(tt_flag_flower=thermaltime -tt_final_leaf) %>%
+  select(1,2,3,8) %>% 
+  spread(environment,tt_flag_flower) %>% 
+  mutate(tt_flag_flower_pp=SV -LV)%>% 
+    filter(tt_flag_flower_pp!="NA") %>% 
+  group_by(genotype) %>% 
+  summarise(mean_tt_ff_pp=mean(tt_flag_flower_pp))
+  
+Parameter_7 <- tt_flag_flower_pp%>% 
+  full_join(Parameter_4, by=c("genotype")) %>% 
+  mutate(EarlyReproductivePpSensitivity=mean_tt_ff_pp / Base_Phyllochron) %>% 
+  select(1,5)
+
+write_csv(Parameter_7, "data/analysed_data/Parameter_7.csv")
 
 #############################################################################
 ##############################PLOTS##########################################
