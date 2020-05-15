@@ -15,7 +15,7 @@ spikelet_data <- read_csv("data/analysed_data/spikelet_data.csv")
 flw_hd_data <- read_csv("data/analysed_data/fwr_hd_tt.csv")
 all_data <- read_csv("data/analysed_data/all_data_wide.csv")
 mean_final_leaf <- read_csv("data/analysed_data/mean_final_leaf.csv")
-
+final_leaf_tt <- read_csv("data/analysed_data/final_leaf_tt.csv")
 
 #Parameters
 parameter_list <- data.frame("Parameter"=c("Parameter_1","Parameter_2","Parameter_3","Parameter_4","Parameter_5","Parameter_6","Parameter_7"),
@@ -117,31 +117,26 @@ write_csv(Parameter_5, "data/analysed_data/Parameter_5.csv")
 
 #not thermal time to flowering but thermal time from flag leaf to flowering
 
-max_haun_tt <- haun_tt %>% 
-  filter(environment=="LV") %>% 
-  group_by(genotype, reps) %>% 
-  summarise(max_haun_tt = max(tt_haun))
+
   
 
 
   flw_half <- flw_hd_data %>% 
-  filter(environment=="LV") %>%
-    filter(obs_type=="half_fwr")
+        filter(obs_type=="half_fwr")
   
-
-   
-  
-  Parameter_6 <- flw_half%>% 
-  full_join(max_haun_tt, by=c("genotype"="genotype", "reps"="reps"))  %>% 
-  group_by(genotype, reps) %>% 
-  summarise(flag_flower=thermaltime-max_haun_tt) %>% 
-    summarise(mean_flag_flower=mean(flag_flower)) %>% 
-    full_join(Base_Phyllochron, by=c("genotype")) %>% 
-    group_by(genotype) %>% 
-    summarise(Early_Reproductive_Long_Day_Base=mean_flag_flower / Base_Phyllochron)
-  
-  
+tt_flag_flower <- flw_half %>% 
+  full_join(final_leaf_tt,by=c("genotype", "environment", "reps")) %>% 
+    filter(environment=="LV") %>% 
+  mutate(tt_flag_flower=thermaltime -tt_final_leaf) %>% 
+  group_by(genotype) %>% 
+  summarise(mean_tt_ff=mean(tt_flag_flower))
  
+  
+  Parameter_6 <- tt_flag_flower%>% 
+    full_join(Parameter_4, by=c("genotype")) %>% 
+   mutate(Early_Reproductive_Long_Day_Base=mean_tt_ff / Base_Phyllochron) %>% 
+    select(1,5)
+  
 
 write_csv(Parameter_6, "data/analysed_data/Parameter_6.csv")
 
