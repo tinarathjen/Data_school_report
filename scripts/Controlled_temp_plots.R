@@ -6,25 +6,31 @@ library(cowplot)
 
 #set working directory
 
-setwd("C:/Users/rat05a/DATA School FOCUS/Controlled_temp_data")
+  setwd("C:/Users/rat05a/DATA School FOCUS/Data_school_report/")
 
 #Upload files 
-haundays <- read_csv("Analysed_data/Haun_data_days.csv")
-haun_thermal_time <- read_csv("Analysed_data/Haun_thermal_time.csv")
-final_leaf <- read_csv("Analysed_data/Final_leaf.csv")
-spikelet_data <- read_csv("Analysed_data/Spikelet_data.csv") 
-flw_hd_data <- read_csv("Analysed_data/Floweringdate_and_headingdate_tt_data.csv")
-mean_final_leaf <- read_csv("Analysed_data/Mean_Final_leaf.csv")
-all_data <- read_csv("Analysed_data/all_data.csv")%>% 
-  rename(spikelet_no="no._spikelets")
+haundays <- read_csv("data/analysed_data/Haun_data_days.csv")
+haun_thermal_time <- read_csv("data/analysed_data/Haun_temp.csv")
+final_leaf <- read_csv("data/analysed_data/final_leaf.csv")
+spikelet_data <- read_csv("data/analysed_data/spikelet_data.csv") 
+flw_hd_data <- read_csv("data/analysed_data/fwr_hd_tt.csv")
+mean_final_leaf <- read_csv("data/analysed_data/mean_final_leaf.csv")
+all_data_wide <- read_csv("data/analysed_data/all_data_wide.csv")
 #dotplot of date v haun score
 
-haun_stage_v_date_roughplot <- haundays %>% ggplot(mapping=aes(x=obs_date, y=haun, colour=environment))+
+haundays %>% 
+  ggplot(mapping=aes(x=obs_date, y=haun, colour=environment))+
   geom_point()
 
-haun_stage_v_days_roughplot <-haundays %>% ggplot(mapping=aes(x=days, y=haun, colour=environment))+
+
+
+haundays %>% 
+  ggplot(mapping=aes(x=days, y=haun, colour=environment))+
   geom_point(alpha=0.5, size=1)
 
+
+haun_thermal_time %>% ggplot(mapping=aes(x=tt_haun, y=haun, colour=environment))+
+  geom_point(alpha=0.5, size=1)
 
 haundays %>%  filter(environment=="SN")%>% 
   group_by(genotype,days) %>%
@@ -108,13 +114,13 @@ final_leaf %>% ggplot(mapping=aes(x=environment, y=final_leaf))+
 final_leaf %>% ggplot(mapping=aes(x=environment, y=final_leaf))+
   geom_boxplot(alpha=0.5, size=1)
 
-final_leaf %>% ggplot(mapping=aes(x=final_leaf))+
+final_leaf %>% ggplot(mapping=aes(x=final_leaf, fill=environment))+
   geom_histogram()+
   facet_wrap(~environment)
 
-final_leaf %>% ggplot(mapping=aes(x=final_leaf))+
+final_leaf %>% ggplot(mapping=aes(x=final_leaf, fill=environment))+
   geom_histogram()+
-  facet_wrap(~Genotype)
+  facet_wrap(~genotype)
 
 final_leaf %>% ggplot(mapping=aes(x=final_leaf, colour=environment))+
   geom_freqpoly(binwidth=3)
@@ -124,14 +130,14 @@ final_leaf %>% ggplot(mapping=aes(x=final_leaf, colour=environment))+
   facet_wrap(~genotype)
 
 final_leaf %>% 
-  ggplot( mapping = aes(x = final_leaf, colour=environment)) +
+  ggplot( mapping = aes(x = final_leaf, fill=environment)) +
   geom_histogram(binwidth = 1) +
   facet_wrap(~environment)
 
 final_leaf %>%
-  ggplot( mapping = aes(x = final_leaf, colour=environment)) +
+  ggplot( mapping = aes(x = final_leaf, fill=environment)) +
   geom_histogram(binwidth = 1) +
-  facet_wrap(~Genotype)
+  facet_wrap(~genotype)
 
 final_leaf %>% 
   filter(environment=="SV" |environment=="LV") %>% 
@@ -161,8 +167,9 @@ mean_final_leaf %>% ggplot(mapping=aes(x=Environment, y=mean_final_leaf, group=g
   facet_wrap(~genotype)
 
 ####spike plots######
-spikelet_data %>% ggplot(mapping=aes(x=environment, y=spikelet_no, colour=type))+
-  geom_point()+facet_wrap(~genotype)
+spikelet_data %>% ggplot(mapping=aes(x=environment, y=spikelet_no))+
+  geom_boxplot()+
+  facet_wrap(~genotype)
 
 spikelet_data %>% 
   filter(genotype=="AXE") %>% 
@@ -217,19 +224,19 @@ flw_hd_data %>% filter(obs_type=="fwr_MS",environment=="LN" | environment=="LV")
 
 #Subset representative lines Vernalisation
 
-all_data_vern <- all_data %>% filter(genotype=="AXE"| genotype=="EMU_ROCK"|
+all_data_vern <- all_data_wide %>% filter(genotype=="AXE"| genotype=="EMU_ROCK"|
                                     genotype=="KITTYHAWK" | genotype=="EGA_WEDGETAIL"|
                                     genotype=="CSIROW087"| genotype=="CSIROW007", 
                                     environment=="LV" | environment=="LN")
 
 #flowering plot
-roughplot1 <- all_data_vern %>% filter(obs_type=="fwr_MS") %>% 
+ all_data_vern %>% filter(obs_type=="fwr_MS") %>% 
   ggplot(mapping=aes(x=environment, y=thermaltime, colour=obs_type))+
   geom_point()+
   facet_wrap(~genotype)
 
 #heading plot
-roughplot2 <- all_data_vern %>% 
+all_data_vern %>% 
   filter(obs_type=="hd_MS") %>% 
   ggplot(mapping=aes(x=environment, y=thermaltime))+
   geom_point(colour="blue")+
@@ -322,5 +329,223 @@ ggplot(mapping=aes(x=haun, y=tt_haun, colour=environment))+
     facet_wrap(~genotype)+
     geom_smooth(method= "lm", size=1)
   
- 
+ ##### Flowering plots
   
+  
+  flw_hd_data %>% filter(obs_type=="fwr_MS" |obs_type=="fwr_t1") %>% 
+    ggplot(mapping=aes(x=genotype, y=thermaltime, colour=environment))+
+    geom_point()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, size = 8))
+  
+  flw_hd_data %>% filter(obs_type=="fwr_MS" |obs_type=="fwr_t1") %>% 
+    ggplot(mapping=aes(x=genotype(genotype, thermaltime), y=thermaltime, colour=environment))+
+    geom_boxplot()+
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, size = 8))
+  
+  
+  flw_hd_data %>% 
+    filter(obs_type=="fwr_MS" |obs_type=="fwr_t1") %>% 
+    group_by(genotype, environment) %>% 
+    summarise(mean_fwr = mean(thermaltime)) %>% 
+    ggplot(mapping=aes(x=genotype, y=mean_fwr, colour=environment))+
+    geom_point()+
+    theme(axis.text.x = element_text(angle = 90, size = 8))
+  
+  flw_hd_data %>% 
+    filter(obs_type=="fwr_MS" |obs_type=="fwr_t1") %>%
+    filter(genotype=="AXE"| genotype=="ELLISON"|
+              genotype=="BEAUFORT" | genotype=="EGA_EAGLEHAWK"|
+             genotype=="KITTYHAWK"| genotype=="EMU_ROCK"|
+           genotype=="YITPI"| genotype=="EGA_WEDGETAIL"|
+              genotype=="CSIROW029"| genotype=="CSIROW087"|
+           genotype=="CSIROW007"| genotype=="CSIROW005") %>% 
+    group_by(genotype, environment) %>% 
+    summarise(mean_fwr = mean(thermaltime)) %>% 
+    ggplot(mapping=aes(x=genotype, y=mean_fwr, colour=environment))+
+    geom_point()+
+    theme(axis.text.x = element_text(angle = 90, size = 8))
+  
+  chosen_few <- flw_hd_data %>% 
+    filter(obs_type=="fwr_MS" |obs_type=="fwr_t1") %>%
+    filter(genotype=="AXE"| genotype=="ELLISON"|
+             genotype=="BEAUFORT" | genotype=="EGA_EAGLEHAWK"|
+             genotype=="KITTYHAWK"| genotype=="EMU_ROCK"|
+             genotype=="SUNTOP"| genotype=="EGA_WEDGETAIL"|
+             genotype=="CSIROW029"| genotype=="CSIROW087"|
+             genotype=="CSIROW007"| genotype=="CSIROW005") %>% 
+    spread(key="environment", value="thermaltime") 
+  
+  chosen_few %>% 
+    ggplot(data=chosen_few,mapping=aes(x=genotype, y=LN))+
+    geom_point(colour="blue")+
+    geom_point(data=chosen_few, mapping=aes(x=genotype, y=LV), colour="red")+
+    theme(axis.text.x = element_text(angle = 90, size = 8))
+  
+  chosen_few %>% 
+    ggplot(data=chosen_few,mapping=aes(x=genotype, y=LN))+
+    geom_boxplot(colour="purple")+
+    geom_boxplot(data=chosen_few, mapping=aes(x=genotype, y=LV), colour="red")+
+    theme(axis.text.x = element_text(angle = 90, size = 8))
+  
+  chosen_few %>% 
+    ggplot(data=chosen_few,mapping=aes(x=genotype, y=SV))+
+    geom_boxplot(colour="blue")+
+    geom_boxplot(data=chosen_few, mapping=aes(x=genotype, y=LV), colour="red")+
+    theme(axis.text.x = element_text(angle = 90, size = 8))
+  
+  chosen_few %>% 
+    ggplot(data=chosen_few,mapping=aes(x=genotype, y=SV))+
+    geom_point(colour="blue")+
+    geom_point(data=chosen_few, mapping=aes(x=genotype, y=LV), colour="red")+
+    theme(axis.text.x = element_text(angle = 90, size = 8))
+  
+  flw_hd_data %>% 
+    filter(obs_type=="fwr_MS" |obs_type=="fwr_t1") %>%
+    spread(key="environment", value="thermaltime") %>% 
+    ggplot(mapping=aes(x=LV, y=LN))+
+    geom_point()+
+    geom_smooth(method=lm)
+  
+  flw_hd_data %>% 
+    filter(obs_type=="fwr_MS" |obs_type=="fwr_t1") %>%
+    spread(key="environment", value="thermaltime") %>% 
+    ggplot(mapping=aes(x=LV, y=SV))+
+    geom_point()+
+    geom_smooth(method=lm) 
+  
+  
+  
+  
+  flw_hd_data %>% filter(obs_type=="fwr_MS" |obs_type=="fwr_t1") %>% 
+    filter(environment=="LV"|environment=="LN" ) %>% 
+    ggplot(mapping=aes(x=genotype, y=thermaltime, colour=environment))+
+    geom_point()
+  
+  flw_hd_data %>% filter(obs_type=="fwr_MS" |obs_type=="fwr_t1") %>% 
+    filter(environment=="LV"|environment=="LN" ) %>% 
+    ggplot(mapping=aes(x=genotype, y=thermaltime, colour=environment))+
+    geom_boxplot()
+  
+  flw_hd_data %>% filter(obs_type=="fwr_MS" |obs_type=="fwr_t1") %>% 
+    filter(environment=="LV"|environment=="LN" ) %>% 
+    group_by(genotype, reps, environment) %>% 
+    spread(key=environment,value=thermaltime) %>% 
+    filter(LN!="NA")  %>% 
+    filter( LV!="NA") %>% 
+    mutate(vern_effect=LN/LV) %>%
+    filter(vern_effect>1.5) %>% 
+    ggplot(mapping=aes(x=genotype, y=vern_effect))+
+    geom_boxplot(colour="blue")
+  
+ #### Need to change the scales so they are all the same
+flw_hd_data %>% filter(obs_type=="fwr_MS" |obs_type=="fwr_t1") %>% 
+    filter(environment=="LV"|environment=="LN" ) %>% 
+    group_by(genotype, reps, environment) %>% 
+    spread(key=environment,value=thermaltime) %>% 
+    filter(LN!="NA")  %>% 
+    filter( LV!="NA") %>% 
+    group_by(genotype) %>% 
+    mutate(vern_effect=mean(LN/LV)) %>%
+    filter(vern_effect>1.5) %>% 
+    ggplot(mapping=aes(x=genotype, y=LN))+
+    geom_boxplot(colour="red")+
+  theme(axis.text.x = element_text(angle = 90, size = 8))
+  
+  flw_hd_data %>% filter(obs_type=="fwr_MS" |obs_type=="fwr_t1") %>% 
+    filter(environment=="LV"|environment=="LN" ) %>% 
+    group_by(genotype, reps, environment) %>% 
+    spread(key=environment,value=thermaltime) %>% 
+    filter(LN!="NA")  %>% 
+    filter( LV!="NA") %>% 
+    group_by(genotype) %>% 
+    mutate(vern_effect=mean(LN/LV)) %>%
+    filter(vern_effect>1.5) %>% 
+    ggplot(mapping=aes(x=genotype, y=LN))+
+    geom_boxplot(colour="blue")+
+    theme(axis.text.x = element_text(angle = 90, size = 8))
+  
+  
+  flw_hd_data %>% filter(obs_type=="fwr_MS" |obs_type=="fwr_t1") %>% 
+    filter(environment=="LV"|environment=="LN" ) %>% 
+    group_by(genotype, reps, environment) %>% 
+    spread(key=environment,value=thermaltime) %>% 
+    filter(LN!="NA")  %>% 
+    filter( LV!="NA") %>% 
+    group_by(genotype) %>% 
+    mutate(vern_effect=mean(LN/LV)) %>%
+    filter(vern_effect<1.5) %>% 
+    ggplot(mapping=aes(x=genotype, y=LN))+
+    geom_boxplot(colour="purple")+
+    theme(axis.text.x = element_text(angle = 90, size = 8))
+  
+  roughplot4 <- flw_hd_data %>% filter(obs_type=="fwr_MS" |obs_type=="fwr_t1") %>% 
+    filter(environment=="LV"|environment=="LN" ) %>% 
+    group_by(genotype, reps, environment) %>% 
+    spread(key=environment,value=thermaltime) %>% 
+    filter(LN!="NA")  %>% 
+    filter( LV!="NA") %>% 
+    group_by(genotype) %>% 
+    mutate(vern_effect=mean(LN/LV)) %>%
+    filter(vern_effect<1.5) %>% 
+    ggplot(mapping=aes(x=genotype, y=LN))+
+    geom_boxplot(colour="green")+
+    theme(axis.text.x = element_text(angle = 90, size = 8))
+  
+  
+    #############################VERN graph ordered############################################
+  
+  flw_hd_data_vern <-  flw_hd_data %>% filter(obs_type=="fwr_MS" |obs_type=="fwr_t1") %>% 
+      filter(environment=="LV"|environment=="LN" ) %>% 
+      group_by(genotype, reps, environment) %>% 
+      spread(key=environment,value=thermaltime) %>% 
+      filter(LN!="NA")  %>% 
+      filter( LV!="NA") 
+  
+  flw_hd_data_pp <-  flw_hd_data %>% filter(obs_type=="fwr_MS" |obs_type=="fwr_t1") %>% 
+    filter(environment=="SV"|environment=="LV" ) %>% 
+    group_by(genotype, reps, environment) %>% 
+    spread(key=environment,value=thermaltime) %>% 
+    filter(LV!="NA")  %>% 
+    filter( SV!="NA") 
+  
+  flw_vern_subset <-flw_hd_data_vern %>% 
+    filter( genotype=="AXE" |genotype=="FORREST"|genotype=="LONGSWORD"|genotype=="MANNING")
+  
+      ggplot(data=flw_hd_data_vern,mapping=aes(x=reorder(genotype, LN), y=LN))+
+    geom_boxplot(colour="green")+
+        geom_boxplot(data=flw_hd_data_vern,mapping=aes(x=reorder(genotype, LN),y=LV),colour="blue")+
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, size = 8))
+      
+      ggplot(data=flw_hd_data_vern,mapping=aes(x=reorder(genotype, LN), y=LN))+
+        geom_point(colour="green")+
+       geom_point(data=flw_hd_data_vern,mapping=aes(x=reorder(genotype, LN),y=LV),colour="blue")+
+      geom_point(data=flw_vern_subset, mapping=aes(x=reorder(genotype, LN), y=LN), colour="green")+
+        theme(axis.text.x = element_text(angle = 90, vjust = 0.5, size = 8))
+      
+      
+      #############################PP graph ordered############################################
+      
+      flw_hd_data_pp <-  flw_hd_data %>% filter(obs_type=="fwr_MS" |obs_type=="fwr_t1") %>% 
+        filter(environment=="SV"|environment=="LV" ) %>% 
+        group_by(genotype, reps, environment) %>% 
+        spread(key=environment,value=thermaltime) %>% 
+        filter(LV!="NA")  %>% 
+        filter( SV!="NA") 
+      
+      flw_pp_subset <-flw_hd_data_pp %>% 
+        filter( genotype=="AXE" |genotype=="FORREST"|genotype=="LONGSWORD"|genotype=="MANNING")
+      
+      ggplot(data=flw_hd_data_pp,mapping=aes(x=reorder(genotype, SV), y=LV))+
+        geom_boxplot(colour="blue")+
+        geom_boxplot(data=flw_hd_data_pp,mapping=aes(x=reorder(genotype, SV), y=SV), colour="purple")+
+        theme(axis.text.x = element_text(angle = 90, vjust = 0.5, size = 8))
+      
+      ggplot(data=flw_hd_data_pp,mapping=aes(x=reorder(genotype, SV), y=LV))+
+        geom_point(colour="blue")+
+        geom_point(data=flw_hd_data_pp,mapping=aes(x=reorder(genotype, SV), y=SV), colour="purple")+
+        theme(axis.text.x = element_text(angle = 90, vjust = 0.5, size = 8))
+      
+      
+      #############################flowering v heading############################
+  
+        
