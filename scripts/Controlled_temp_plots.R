@@ -16,6 +16,8 @@ spikelet_data <- read_csv("data/analysed_data/spikelet_data.csv")
 flw_hd_data <- read_csv("data/analysed_data/fwr_hd_tt.csv")
 mean_final_leaf <- read_csv("data/analysed_data/mean_final_leaf.csv")
 all_data_wide <- read_csv("data/analysed_data/all_data_wide.csv")
+phyllochron <- read_csv("data/analysed_data/phyllochron.csv")
+
 #dotplot of date v haun score
 
 haundays %>% 
@@ -509,7 +511,9 @@ flw_hd_data %>% filter(obs_type=="fwr_MS" |obs_type=="fwr_t1") %>%
     filter( SV!="NA") 
   
   flw_vern_subset <-flw_hd_data_vern %>% 
-    filter( genotype=="AXE" |genotype=="FORREST"|genotype=="LONGSWORD"|genotype=="MANNING")
+    filter( genotype=="AXE" |genotype=="FORREST"|genotype=="LONGSWORD"|genotype=="MANNING") %>% 
+    group_by(genotype) %>%  
+    summarise(mean_LN=mean(LN), mean_LV=mean(LV)) 
   
       ggplot(data=flw_hd_data_vern,mapping=aes(x=reorder(genotype, LN), y=LN))+
     geom_boxplot(colour="green")+
@@ -522,6 +526,15 @@ flw_hd_data %>% filter(obs_type=="fwr_MS" |obs_type=="fwr_t1") %>%
       geom_point(data=flw_vern_subset, mapping=aes(x=reorder(genotype, LN), y=LN), colour="green")+
         theme(axis.text.x = element_text(angle = 90, vjust = 0.5, size = 8))
       
+      flw_hd_data_vern %>% group_by(genotype) %>%  
+        summarise(mean_LN=mean(LN), mean_LV=mean(LV)) %>% 
+        ggplot(mapping=aes(x=reorder(genotype, mean_LN), y=mean_LN))+
+        geom_point(colour="green")+
+        geom_point(mapping=aes(x=reorder(genotype, mean_LN),y=mean_LV),colour="blue")+
+        geom_point(data=flw_vern_subset, mapping=aes(x=reorder(genotype, mean_LN),y=mean_LN),colour="black", size=2)+
+        theme(axis.text.x = element_text(angle = 90, vjust = 0.5, size = 8))+
+        geom_text(aes(label=genotype), data=flw_vern_subset, nudge_y=200)
+      
       
       #############################PP graph ordered############################################
       
@@ -533,7 +546,9 @@ flw_hd_data %>% filter(obs_type=="fwr_MS" |obs_type=="fwr_t1") %>%
         filter( SV!="NA") 
       
       flw_pp_subset <-flw_hd_data_pp %>% 
-        filter( genotype=="AXE" |genotype=="FORREST"|genotype=="LONGSWORD"|genotype=="MANNING")
+        filter( genotype=="AXE" |genotype=="FORREST"|genotype=="LONGSWORD"|genotype=="MANNING") %>% 
+        group_by(genotype) %>%  
+        summarise(mean_SV=mean(SV), mean_LV=mean(LV))
       
       ggplot(data=flw_hd_data_pp,mapping=aes(x=reorder(genotype, SV), y=LV))+
         geom_boxplot(colour="blue")+
@@ -545,7 +560,89 @@ flw_hd_data %>% filter(obs_type=="fwr_MS" |obs_type=="fwr_t1") %>%
         geom_point(data=flw_hd_data_pp,mapping=aes(x=reorder(genotype, SV), y=SV), colour="purple")+
         theme(axis.text.x = element_text(angle = 90, vjust = 0.5, size = 8))
       
+      flw_hd_data_pp %>% 
+        group_by(genotype) %>%  
+        summarise(mean_SV=mean(SV), mean_LV=mean(LV)) %>%  
+        ggplot(mapping=aes(x=reorder(genotype, mean_SV), y=mean_LV))+
+        geom_point(colour="blue")+
+        geom_point(mapping=aes(x=reorder(genotype, mean_SV), y=mean_SV), colour="purple")+
+        theme(axis.text.x = element_text(angle = 90, vjust = 0.5, size = 8))+
+        geom_point(data=flw_vern_subset, mapping=aes(x=reorder(genotype, mean_SV),y=mean_SV),colour="black", size=2)
+        geom_text(aes(label=genotype), data=flw_pp_subset, nudge_y=200)
       
+        
+        ###labelling with geom_text not working
       #############################flowering v heading############################
-  
+  ggplot(all_data_wide, mapping=aes(x=flw_tt, y=hd_tt, colour=environment))+
+          geom_point()+
+          geom_smooth(method=lm)
+        
+        ggplot(all_data_wide, mapping=aes(x=flw_tt, y=final_leaf))+
+          geom_point()+
+          geom_smooth(method=lm)  
+        
+        all_data_wide %>% 
+          filter(environment=='SN') %>%
+          ggplot( mapping=aes(x=flw_tt, y=final_leaf))+
+          geom_point()+
+          geom_smooth(method=lm)
+        
+        all_data_wide %>% 
+          filter(environment=='LN') %>%
+          ggplot( mapping=aes(x=flw_tt, y=final_leaf))+
+          geom_point()+
+          geom_smooth(method=lm)
+        
+        all_data_wide %>% 
+          filter(environment=='SV') %>%
+          ggplot( mapping=aes(x=flw_tt, y=final_leaf))+
+          geom_point()+
+          geom_smooth(method=lm)
+        
+        all_data_wide %>% 
+          filter(environment=='LV') %>%
+          ggplot( mapping=aes(x=flw_tt, y=final_leaf))+
+          geom_point()+
+          geom_smooth(method=lm)
+        
+        all_data_wide %>% 
+          filter(environment=='SN') %>%
+          ggplot( mapping=aes(x=flw_tt, y=spikelet_no))+
+          geom_point()+
+          geom_smooth(method=lm)
+        
+        
+        all_data_wide %>% 
+          filter(environment=='LV') %>%
+          ggplot( mapping=aes(x=flw_tt, y=spikelet_no))+
+          geom_point()+
+          geom_smooth(method=lm)
+        
+        all_data_wide %>% 
+          filter(environment=='SV') %>%
+          ggplot( mapping=aes(x=flw_tt, y=spikelet_no))+
+          geom_point()+
+          geom_smooth(method=lm)
+        
+        all_data_wide %>% 
+          filter(environment=='LN') %>%
+          ggplot( mapping=aes(x=flw_tt, y=spikelet_no))+
+          geom_point()+
+          geom_smooth(method=lm)
+        
+        ggplot(all_data_wide, mapping=aes(x=flw_tt, y=spikelet_no))+
+          geom_point()+
+          geom_smooth(method=lm) 
+        
+        #could try to plot phyllochron versus flowering
+        
+        phyllochron_flw <- flw_hd_data %>% 
+          group_by(genotype, environment) %>%  
+          summarise(mean_tt=mean(thermaltime)) %>% 
+          full_join(phyllochron, by = c("genotype", "environment"))
+        
+        
+        ggplot(phyllochron_flw, mapping=aes(x=mean_tt, y=phyllochron, colour=environment))+
+          geom_point()+
+          geom_smooth(method=lm) 
         
