@@ -23,10 +23,6 @@ library(tidyverse)
 library(kableExtra)
 library(cowplot)
 
-
-
-
-
 ```
 
 
@@ -134,7 +130,7 @@ p2 <- all_data_wide2  %>%
         panel.grid.major.x  = element_blank())+
   ylim(500,5000)
 
- plot_grid(p1, p2, rel_widths=c(3,4))
+ plot_grid(p1, p2, rel_widths=c(3.5,4))
 
 
 ```
@@ -159,7 +155,7 @@ flw_hd_data_vern %>%
   y = "Mean Flowering Time, degree days", colour="Environment", size = 4)+
   theme_bw()+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, size = 5),
-        plot.title = element_text(size=10),
+        plot.title = (element_text(size=12, hjust = 0.5)),
         axis.title.x= element_blank(),
         panel.grid.minor.x  = element_blank(),
         panel.grid.major.x  = element_blank())
@@ -182,49 +178,76 @@ flw_hd_data_pp %>%
   ggplot(mapping=aes(x=reorder(genotype, SV), y=LV))+
   geom_point(size=1.5, colour="#377eb8")+
   geom_point(mapping=aes(x=reorder(genotype, SV),y=SV),colour="#e41a1c")+
+  labs(title="Photoperiod effect on Flowering time", x = "", y = "Mean Flowering Time, degree-days", size = 6)+
   theme_bw()+
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, size = 6))+
-  labs(title="Photoperiod effect on Flowering time", x = "", y = "Mean Flowering Time, degree-days", size = 6)
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, size = 5),
+        plot.title = element_text(size=12, hjust = 0.5),
+        axis.title.x= element_blank(),
+        panel.grid.minor.x  = element_blank(),
+        panel.grid.major.x  = element_blank())
 ```
 
 
 ```{r r fourth_plot, echo=FALSE, fig.align='center', fig.height=4, fig.width=6, out.width='100%'}
 #all varieties
 
-flw_hd_data_all <-  flw_hd_data %>% 
-  filter(obs_type=="half_fwr") %>% 
-  group_by(genotype, reps) %>% 
-  spread(key=environment,value=thermaltime) %>% 
-  group_by(genotype) %>% 
-  summarise(vern_effect=mean(LN)/mean(LV), pp_effect=mean(SV)/mean(LV)) 
+all_data_wide3 <-  all_data_wide2 %>% 
+  select(1:5,8) %>% 
+  spread(key=Environment,value=half_fwr) %>% 
+  group_by(Genotype) %>% 
+  mutate(vern_effect=(mean(LN)-mean(LV)/mean(LV)), pp_effect=(mean(SV)-mean(LV)/mean(LV))) %>% 
+  unite(mat_type, c(Maturing, Type), sep = " ", remove = FALSE)
 
-
-flw_hd_data_all%>% 
-  ggplot(mapping=aes(x=vern_effect, y=pp_effect))+
+all_data_wide3%>% 
+  ggplot(mapping=aes(x=vern_effect, y=pp_effect, colour=Maturing, shape=Type))+
   geom_point()+
-geom_text( aes(x=vern_effect, y=pp_effect, label=genotype, size=6,angle=45, alpha=0.5, colour="blue"))
+labs(title="Still to Fill in", x="Vernalisation effect", y="Photoperiod effect", size = 4)+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, size = 5),
+        plot.title = (element_text(size=12, hjust = 0.5)),,
+        panel.grid.minor.x  = element_blank())
 ```
 
-```{rr standard-plot4, echo=FALSE, fig.align='center', fig.height=4, fig.width=6, out.width='100%'}
+```{r standard-plot4, echo=FALSE, fig.align='center', fig.height=4, fig.width=6, out.width='100%'}
 
 #Plots of correlation
-plot1 <- ggplot(all_data_wide, mapping=aes(x=flw_tt, y=hd_tt))+
+plot1 <- ggplot(all_data_wide, mapping=aes(x=half_fwr, y=fwr_MS))+
   geom_point(alpha=0.4, colour="grey49")+
-  geom_smooth(method=lm, colour="blue")
+  geom_smooth(method=lm, colour="blue")+
+  labs(title="yada", x = "50% Flowering, degree-days", y = "Flowering MS, degree-days", size = 6)+
+  theme_bw()+
+  theme(plot.title = element_text(size=12, hjust = 0.5),
+        panel.grid.minor.x  = element_blank())
 
-plot2 <- ggplot(all_data_wide, mapping=aes(x=flw_tt, y=final_leaf))+
+plot2 <- ggplot(all_data_wide, mapping=aes(x=half_fwr, y=half_hd))+
   geom_point(alpha=0.4, colour="grey49")+
-  geom_smooth(method=lm, colour="blue")  
+  geom_smooth(method=lm, colour="blue")+
+  labs(title="yada", x = "50% Flowering, degree-days", y = "Heading MS, degree-days", size = 6)+
+  theme_bw()+
+  theme(plot.title = element_text(size=12, hjust = 0.5),
+        panel.grid.minor.x  = element_blank())
 
 plot3 <- all_data_wide %>% 
-  ggplot( mapping=aes(x=flw_tt, y=spikelet_no))+
+  ggplot( mapping=aes(x=half_fwr, y=spikelet_no))+
   geom_point(alpha=0.4, colour="grey49")+
-  geom_smooth(method=lm, colour="blue")
+  geom_smooth(method=lm, colour="blue")+
+  labs(title="yada", x = "50% Flowering, degree-days", y = "Spikelet number", size = 6)+
+  theme_bw()+
+  theme(plot.title = element_text(size=12, hjust = 0.5),
+        panel.grid.minor.x  = element_blank(),
+        panel.grid.major.x  = element_blank())
 
 plot4 <- all_data_wide  %>%
-  ggplot( mapping=aes(x=flw_tt, y=final_leaf))+
+  ggplot( mapping=aes(x=half_fwr, y=final_leaf))+
   geom_point(alpha=0.4, colour="grey49")+
-  geom_smooth(method=lm, colour="blue")
+  geom_smooth(method=lm, colour="blue")+
+  labs(title="yada", x = "50% Flowering, degree-days", y = "Final leaf number", size = 6)+
+  theme_bw()+
+  theme(plot.title = element_text(size=12, hjust = 0.5),
+        panel.grid.minor.x  = element_blank())
+
+plot_grid(plot1, plot2, plot3, plot4)
+
 ```
 
 **Parameter calculations**
