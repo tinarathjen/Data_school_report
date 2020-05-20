@@ -1,16 +1,13 @@
 ---
 title: Investigating flowering time in wheat under controlled environment conditions
-subtitle: 
-short_title: Optional short title # Delete if not required
 
 author:  Tina Rathjen
 affiliation: Agriculture and Food
 photo: resources/img/wheat_trial.jpg
 
+
+  
 output: DSreport::project_summary
-html_document:
-  code_folding: hide
- 
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
@@ -23,102 +20,404 @@ knitr::opts_chunk$set(
 
 #Load libraries
 library(tidyverse)
-library(gapminder)
 library(kableExtra)
+library(cowplot)
+
+
+
+
+
 ```
 
 
 # Introduction
-My name is Tina Rathjen. I am a Research Project Officer and I am presently working on a project within the GRDC's National Phenology Initiative. I have been working as a molecular biologist for over 25 years working on both animal and plant systems. The last 10 years I have worked at CSIRO and have worked on several projects investigating different aspects of wheat, which involved me primarily carrying out lab, glasshouse and field experiments. Previously data generated has been entered and analysed using Excel and prior to data school I had not done any coding in R. Data School FOCUS has opened my eyes to a whole new world of data analysis and I hope to use this as a starting point to learn new and exciting things. I have absolutely loved Data School!
+My name is Tina Rathjen. I have been working as a molecular biologist for over 25 years on both animal and plant systems. The last 10 years I have worked at CSIRO and have been involved on several projects investigating different aspects of wheat physiology and growth. This has included carrying out laboratory, glasshouse and field experiments and previously data generated has been entered and analysed using Excel. Prior to Data School I did not know how to code or use R. Data School FOCUS has opened my eyes to a whole new world of data analysis and I hope to use this as a starting point to learn and apply new and exciting methodologies. 
 
 # My Project
-I work on a project within the GRDC's National Phenology Initiative which aims to predict the flowering time of wheat and barley cultivars in different environmental conditions around Australia.
+I work on a project within the GRDC's National Phenology Initiative which aims to predict the flowering time of wheat and barley cultivars in all the different cerael growing regions within Australia.
 
-Wheat and barley cultivars have an optimal flowering window. Crops that flower too early can have reduced yield due to insufficient biomass accummulation and exposure to cold or frost events. Crops that flower too late risk being exposed to water stress or heat events. Growers require accurate information to select the correct cultivar and sowing date for their conditions. For new cultivars it many take several years to conduct field trials across many regions to acccumulate sufficient data to predict flowering time. Currently cultivars can be released prior to trials being carried out and therefore growers may not have the knowledge of which cultivar to plant and what is the correct time of sowing for their conditions.
+Wheat and barley cultivars have an optimal flowering window. Crops that flower too early can have reduced yield due to exposure to insufficient biomass accummulation or to cold or frost events. Conversely, crops that flower too late risk being exposed to water stress or heat events. Growers require accurate information to select the correct cultivar and sowing date for their conditions. For new cultivars it many take several years to conduct field trials to acccumulate sufficient data to predict flowering time.  Also a cultivar is currently marketed as a spring or winter wheat and also as slow, mid or fast maturing but these terms can be misleading. With new cultivars being released yearly growers may not have the knowledge to decide which cultivar to plant and what is the correct time of sowing for their conditions.
 
-It is known that major environmental factors influencing flowering time include thermal time, photoperiod and vernalisation. APSIM models have been developed that use parameters based on these factors to model cultivar flowering times.  It is the aim of this project to improve & modify the existing APSIM models of wheat and barley. This project involved four controlled temperature experiments being carried out on 54 Australian wheat cultivars and 15 Wheat NILs (Near Isogenic Lines). Data generated from this study together with genomic data will be used to identify molecular markers important in predicting flowering time. The aim is to in the future develop improved APSIM models based on parameterisation with molecular markers, controlled environment and/or genomic data to more accurately predict flowering time. 
+It is known that the major environmental factors influencing flowering time are thermal-time, photoperiod and vernalisation. APSIM models have been developed that use parameters based on these factors to model cultivar flowering times across the many cereal growing regions within Australia.  It is the aim of this project to improve and modify the existing APSIM models of wheat and barley. This study involved four controlled temperature experiments being carried out on 54 Australian wheat cultivars and 15 Wheat NILs (Near Isogenic Lines). Data generated from this study together with genomic data will be used to identify molecular markers important in predicting flowering time. Ultimately the aim is to develop an improved APSIM model based on parameterisation with molecular markers, controlled environment and/or genomic data to more accurately predict flowering time. 
 
 
 
 ## Preliminary results
 
-The controlled experiments were carried out under four environmental conditions, SN (short days, no vernalisation), LN (long days, no vernalisation, SV (short days plus vernalisation) and LV (long days plus vernalisation) to determine the influence of photoperiod and vernalisation on flowering times and linked traits. Traits measured include emergence date, flowering date, heading date, final leaf number and spikelet number. In addition haun stage, a measure of developmental growth stage based on leaf emergence, was recorded every third day from emergence to flowering. I have used the R package in tidyverse to clean and tidy the data. I have also converted dates to accumulated thermal time (degree days). Table 1 shows a representation of the trait data including flowering time, heading time, spikelet number and final leaf number. Table 2 shows a representation of the haun stage data.
+The controlled experiments were carried out under four environmental conditions, SN (short days, no vernalisation), LN (long days, no vernalisation, SV (short days plus vernalisation) and LV (long days plus vernalisation) to determine the influence of photoperiod and vernalisation on flowering times. The temperature for all experiments was set at a constant 22C and measured every 30 minutes using a TinyTag data logger.  Traits measured include emergence date, flowering date, heading date, final leaf number and spikelet number. In addition haun stage, a measure of developmental growth stage based on leaf emergence, was recorded every third day from emergence to flowering. The data was initially in several sheets within one Excel file. I have used the tidyverse package to clean and arrange the data. I have separated the data into two files, Haun stage data, containing the haun scores and a second file Flowering data, containing all other traits.  I have also used the temperature data to convert dates to accumulated thermal time (degree-days). Tables 1 and 2 show a representation of the two tidied data files.
 
 
 **Tables**
-```{r all_data_wide, out.width='100%', echo=TRUE }
 
-all_data_wide <- read_csv("data/analysed_data/all_data_wide.csv") %>% 
-  rename(Genotype="genotype", Environment="environment", 
+``````{r mytable, out.width='90%', echo = FALSE}
+
+#read files
+all_data_wide <- read_csv("C:/Users/rat05a/DATA School FOCUS/Data_school_report/data/analysed_data/all_data_wide.csv")
+
+cult_desc <- read_csv("C:/Users/rat05a/DATA School FOCUS/Data_school_report/data/rawdata/cultivar_descriptions.csv")
+
+haun_data <- read_csv("C:/Users/rat05a/DATA School FOCUS/Data_school_report/data/analysed_data/Haun_temp.csv") 
+  
+haun_data2 <- cult_desc %>% 
+  right_join(haun_data, by=c("genotype")) %>% 
+rename(Genotype="genotype", Environment="environment", 
          Rep="reps", 
-         'Thermal time to flowering'="flw_tt",
-         'Thermal time to heading'="hd_tt",
-         'Final leaf number'="final_leaf",
-         'Spikelet number' = "spikelet_no")
+         'degree-days'="tt_haun",
+         'Haun stage'="haun",
+       Type= "type", 
+       Maturing="speed") %>%  
+  filter(Genotype=="EMU_ROCK",Rep== 1) %>% 
+  mutate_if(is.numeric, round, digits=1)
 
-knitr::kable(head(all_data_wide, n = 5), format = "html", caption = "Controlled Environment Data") %>% 
+knitr::kable(head(haun_data2, n = 5), format = "html", caption = "Controlled Environment - Haun Stage Data") %>% 
   kable_styling("striped")
+
 ```
 
-```{r haun_data_wide, out.width='100%', echo = TRUE }
+```{r secondtable, out.width='90%', echo = FALSE}
+  all_data_wide2 <- cult_desc %>% 
+  right_join(all_data_wide, by=c("genotype")) %>% 
+  rename(Genotype="genotype", Environment="environment",
+         Rep="reps", Type= "type", Maturing="speed") %>% 
+    mutate_if(is.numeric, round, digits=0)
 
-haun_data_wide <- read_csv("data/analysed_data/Haun_temp.csv") %>% 
-  rename(Genotype="genotype", Environment="environment", 
-         Rep="reps", 
-         'Thermal time to measurement'="tt_haun",
-         'Haun stage'="haun") %>%  filter(Genotype=="EMU_ROCK",Rep== 1)
-
-knitr::kable(head(haun_data_wide, n = 5), format = "html", caption = "Haun Stage Data") %>% 
-  kable_styling("striped")
+knitr::kable(head(all_data_wide2, n = 5), format = "html", caption = "Controlled Environment - Flowering Data") %>% 
+  kable_styling("striped")%>%
+  kableExtra::scroll_box(width = "100%")
 ```
-
-**Images from a file**
-
-![](resources/img/tidyverse.png){width=100px}
-![](https://raw.githubusercontent.com/tidyverse/ggplot2/master/man/figures/logo.png){width=90px}
-
-
-
 
 **Plots from R**
-```{r standard-plot, out.width='60%', fig.align='center', fig.height= 4, fig.width=6, fig.cap="Yet another gapminder plot"}
-gapminder %>% 
-  filter(year == 1987) %>% 
-  ggplot(aes(x = gdpPercap, y = lifeExp, colour = continent, size = pop)) +
-  geom_point() +
-  scale_x_log10(labels = function(b) format(b, scientific = F)) +
-  scale_size(trans = "sqrt", guide = "none") +
-  scale_color_brewer(palette = "Set1") +
-  theme_linedraw() +
-  theme(legend.position = "bottom")
+
+```{r standard-plot, echo=FALSE, fig.align='center', fig.height=4, fig.width=6, out.width='100%'}
+
+flw_hd_data <- read_csv("data/analysed_data/fwr_hd_tt.csv")
+
+ #flowering spring 
+p1 <- all_data_wide2  %>% 
+  group_by(Genotype, Environment) %>% 
+  mutate(mean_fwr = mean(half_fwr)) %>% 
+  filter(mean_fwr != "NA") %>% 
+  filter(Type=="Spring") %>% 
+  ggplot(mapping=aes(x=Genotype, y=mean_fwr, colour=Environment))+
+  geom_point(size=1.5)+ 
+  facet_wrap(~Maturing, scales="free_x", nrow=1)+
+  scale_colour_manual(values=c("SV" = "#e41a1c", "SN" = "#984ea3", "LN" = "#4daf4a", "LV" = "#377eb8"), aesthetics = c("colour", "fill"))+
+  labs(title="Flowering time of Spring Wheats", x = "", y = "Mean Flowering Time, degree-days", 
+       colour="Environment", size = 4)+
+  theme_bw()+
+  theme(axis.text.x = element_blank(),
+        plot.title = element_text(size=10),
+        legend.position="none",
+        panel.grid.minor.x  = element_blank(),
+        panel.grid.major.x  = element_blank())+
+  ylim(500,5000)
+  
+
+#winter wheats
+p2 <- all_data_wide2  %>% 
+  group_by(Genotype, Environment) %>% 
+  mutate(mean_fwr = mean(half_fwr)) %>% 
+  filter(mean_fwr != "NA") %>% 
+  filter(Type=="Winter") %>% 
+  ggplot(mapping=aes(x=Genotype, y=mean_fwr, colour=Environment))+
+  geom_point(size=1.5)+ 
+  facet_wrap(~Maturing, scales="free_x", nrow=1)+
+  scale_colour_manual(values=c("SV" = "#e41a1c", "SN" = "#984ea3", "LN" = "#4daf4a", "LV" = "#377eb8"), aesthetics = c("colour", "fill"))+
+  labs(title="Flowering time of Winter Wheats", x = "", y = "Mean Flowering Time, degree-days", 
+       colour="Environment", size = 4)+
+  theme_bw()+
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        plot.title = element_text(size=10),
+        axis.title.y= element_blank(),
+        panel.grid.minor.x  = element_blank(),
+        panel.grid.major.x  = element_blank())+
+  ylim(500,5000)
+
+ plot_grid(p1, p2, rel_widths=c(3,4))
+
+
 ```
 
-Your figure and table captions are automatically numbered and can be referenced in the text
-if needed: see eg. Table \@ref(tab:mytable) and Figure \@ref(fig:standard-plot)
+```{r second_plot, echo=FALSE, fig.align='center', fig.height=4, fig.width=5, out.width='80%'}
+
+#vern effect
+
+flw_hd_data_vern <-  flw_hd_data %>% 
+  filter(obs_type=="half_fwr") %>% 
+  filter(environment=="LV"|environment=="LN" ) %>% 
+  group_by(genotype, environment) %>%
+  summarise(mean_tt=mean(thermaltime)) %>% 
+  filter(mean_tt!="NA") %>% 
+  spread(key=environment, value=mean_tt)
+  
+flw_hd_data_vern %>% 
+  ggplot(mapping=aes(x=reorder(genotype, LN), y=LN))+
+  geom_point(size=1.5, colour="#4daf4a")+
+  geom_point(mapping=aes(x=reorder(genotype, LN),y=LV),colour="#377eb8")+
+  labs(title="Vernalisation effect on Flowering time",
+  y = "Mean Flowering Time, degree days", colour="Environment", size = 4)+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, size = 5),
+        plot.title = element_text(size=10),
+        axis.title.x= element_blank(),
+        panel.grid.minor.x  = element_blank(),
+        panel.grid.major.x  = element_blank())
+```
+
+```{r third_plot, echo=FALSE, fig.align='center', fig.height=4, fig.width=6, out.width='100%'}
+
+#Pp effect
+
+flw_hd_data_pp <-  flw_hd_data %>% 
+  filter(obs_type=="half_fwr") %>% 
+  filter(environment=="SV"|environment=="LV" ) %>% 
+  group_by(genotype, environment) %>%
+  summarise(mean_tt=mean(thermaltime)) %>% 
+  filter(mean_tt!="NA") %>% 
+  spread(key=environment,value=mean_tt) 
+  
+
+flw_hd_data_pp %>% 
+  ggplot(mapping=aes(x=reorder(genotype, SV), y=LV))+
+  geom_point(size=1.5, colour="#377eb8")+
+  geom_point(mapping=aes(x=reorder(genotype, SV),y=SV),colour="#e41a1c")+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, size = 6))+
+  labs(title="Photoperiod effect on Flowering time", x = "", y = "Mean Flowering Time, degree-days", size = 6)
+```
+
+
+```{r r fourth_plot, echo=FALSE, fig.align='center', fig.height=4, fig.width=6, out.width='100%'}
+#all varieties
+
+flw_hd_data_all <-  flw_hd_data %>% 
+  filter(obs_type=="half_fwr") %>% 
+  group_by(genotype, reps) %>% 
+  spread(key=environment,value=thermaltime) %>% 
+  group_by(genotype) %>% 
+  summarise(vern_effect=mean(LN)/mean(LV), pp_effect=mean(SV)/mean(LV)) 
+
+
+flw_hd_data_all%>% 
+  ggplot(mapping=aes(x=vern_effect, y=pp_effect))+
+  geom_point()+
+geom_text( aes(x=vern_effect, y=pp_effect, label=genotype, size=6,angle=45, alpha=0.5, colour="blue"))
+```
+
+```{rr standard-plot4, echo=FALSE, fig.align='center', fig.height=4, fig.width=6, out.width='100%'}
+
+#Plots of correlation
+plot1 <- ggplot(all_data_wide, mapping=aes(x=flw_tt, y=hd_tt))+
+  geom_point(alpha=0.4, colour="grey49")+
+  geom_smooth(method=lm, colour="blue")
+
+plot2 <- ggplot(all_data_wide, mapping=aes(x=flw_tt, y=final_leaf))+
+  geom_point(alpha=0.4, colour="grey49")+
+  geom_smooth(method=lm, colour="blue")  
+
+plot3 <- all_data_wide %>% 
+  ggplot( mapping=aes(x=flw_tt, y=spikelet_no))+
+  geom_point(alpha=0.4, colour="grey49")+
+  geom_smooth(method=lm, colour="blue")
+
+plot4 <- all_data_wide  %>%
+  ggplot( mapping=aes(x=flw_tt, y=final_leaf))+
+  geom_point(alpha=0.4, colour="grey49")+
+  geom_smooth(method=lm, colour="blue")
+```
+
+**Parameter calculations**
+Seven parameters were calculated from the original data. Descriptions of the seven parameters are shown in Table 3. The parameters were calculated using R scripts  and a representation of the output shown in Table 4.
+```{r parameter_list, out.width='100%', echo = FALSE}
+
+#Parameters
+parameter_list <- data.frame("Parameter"=c("Parameter_1","Parameter_2","Parameter_3","Parameter_4","Parameter_5","Parameter_6","Parameter_7"),
+                             "Name"=c("Minimal_Leaf_Number","Pp_Sensitivity","Vrn_Sensitivity","Base_Phyllochron",
+                                      "Phyllochron_Photoperiod_effect","Early_Reproductive_Long_Day_Base", "Early_Reproductive_Pp_Sensitivity"),
+                             "Calculation"=c("LV mean final leaf number","SV mean final leaf number minus LV mean final leaf number",
+                                             "LN mean final leaf number minus LV mean final leaf number",
+                                             "slope of accummulated thermal time against mean leaf number between 3 and 7 in LV",
+                                             "ratio of Phyllochron SV to Phyllochron LV","accumulated thermal time at flowering divided by BasePhyllochron",
+                                             "difference of accumulated time between LV and SV treatment divided by BasePhyllochron"))
+
+knitr::kable(head(parameter_list, n = 7), format = "html", caption = "Table 3 : APSIM Parameters description") %>% 
+  kable_styling("striped")
+
+```
+
+
+  
+```{r parameters, out.width='100%', echo = FALSE }
+
+
+#Upload files 
+final_leaf <- read_csv("data/analysed_data/final_leaf.csv")
+haun_tt <- read_csv("data/analysed_data/Haun_temp.csv")
+spikelet_data <- read_csv("data/analysed_data/spikelet_data.csv")
+flw_hd_data <- read_csv("data/analysed_data/fwr_hd_tt.csv")
+all_data <- read_csv("data/analysed_data/all_data_wide.csv")
+mean_final_leaf <- read_csv("data/analysed_data/mean_final_leaf.csv")
+final_leaf_tt <- read_csv("data/analysed_data/final_leaf_tt.csv")
+
+
+
+
+
+#####################Parameter 1 #######################
+
+# MinimumLeafNumber defined as final leaf number LV Environment
+
+Parameter_1 <- filter(final_leaf, environment=="LV") %>% 
+  group_by(genotype) %>% 
+  summarise(Minimum_leaf_number=mean(final_leaf))
+
+
+###############Parameter 2#################################  
+
+#PPsensitivity defined as difference in leaf number between LV and SV
+
+Parameter_2 <- filter(final_leaf,environment=="LV"  |environment=="SV")%>% 
+  spread(environment,value=final_leaf) %>% 
+  rename("LV_final_leaf"="LV", "SV_final_leaf"="SV") %>% 
+  filter(LV_final_leaf!="NA") %>% 
+  filter(SV_final_leaf!="NA") %>% 
+  mutate(Ppsensitivity=SV_final_leaf - LV_final_leaf)%>%
+  group_by(genotype) %>%
+  summarise(Ppsensitivity=mean(Ppsensitivity)) %>% 
+  mutate(Ppsensitivity=ifelse(Ppsensitivity>0,Ppsensitivity,0))
+
+
+######################Parameter 3############################
+
+#VrnSensitivity defined as differnece between final leaf number LV and LN
+
+
+Parameter_3 <- filter(final_leaf,environment=="LV"  |environment=="LN") %>% 
+  spread(environment,value=final_leaf) %>% 
+  rename("LV_final_leaf"="LV", "LN_final_leaf"="LN") %>% 
+  filter(LN_final_leaf!="NA") %>%  
+  mutate(vrnsensitivity= LN_final_leaf - LV_final_leaf)%>%
+  group_by(genotype) %>% 
+  summarise(Vrn_sensitivity=mean(vrnsensitivity)) 
+
+
+
+##########################Parameter_4##############################################
+
+
+
+Phyllochron <-  haun_tt %>% filter(haun>3, haun<7) %>% 
+  group_by(genotype, environment) %>% 
+  do((lm(tt_haun ~ haun, data= .)) %>% 
+       coef %>% 
+       as_data_frame()) %>% 
+  mutate(sel=1:n()) %>%
+  filter(sel==2) %>%
+  rename(phyllochron=value) %>% 
+  select(1:3)
+
+
+
+Parameter_4 <- Phyllochron %>% 
+  filter(environment=="LV") %>% 
+  select(1,3) %>% 
+  rename(Base_Phyllochron="phyllochron")
+  
+
+
+  ############Parameter 5###################
+  
+  Parameter_5 <- Phyllochron %>% 
+  filter(environment=="LV" | environment=="SV") %>% 
+  spread(environment, phyllochron) %>% 
+  summarise(Phyllochron_PhotoPeriod_Effect=SV/LV)
+
+
+##########Parameter 6######################
+
+
+  flw_half <- flw_hd_data %>% 
+        filter(obs_type=="half_fwr")
+  
+tt_flag_flower <- flw_half %>% 
+  full_join(final_leaf_tt,by=c("genotype", "environment", "reps")) %>% 
+    filter(environment=="LV") %>% 
+  mutate(tt_flag_flower=thermaltime -tt_final_leaf) %>% 
+  group_by(genotype) %>% 
+  summarise(mean_tt_ff=mean(tt_flag_flower))
+ 
+  
+  Parameter_6 <- tt_flag_flower%>% 
+    full_join(Parameter_4, by=c("genotype")) %>% 
+   mutate(Early_Reproductive_Long_Day_Base=mean_tt_ff / Base_Phyllochron) %>% 
+    select(1,5)
+  
+
+
+###Parameter7#############
+
+tt_flag_flower_pp <- flw_half %>% 
+  full_join(final_leaf_tt,by=c("genotype", "environment", "reps")) %>% 
+  filter(environment=="LV"| environment=="SV") %>% 
+  mutate(tt_flag_flower=thermaltime -tt_final_leaf) %>%
+  select(1,2,3,8) %>% 
+  spread(environment,tt_flag_flower) %>% 
+  mutate(tt_flag_flower_pp=SV -LV)%>% 
+    filter(tt_flag_flower_pp!="NA") %>% 
+  group_by(genotype) %>% 
+  summarise(mean_tt_ff_pp=mean(tt_flag_flower_pp))
+  
+Parameter_7 <- tt_flag_flower_pp%>% 
+  full_join(Parameter_4, by=c("genotype")) %>% 
+  mutate(EarlyReproductivePpSensitivity=mean_tt_ff_pp / Base_Phyllochron) %>% 
+  select(1,5)
+
+```
+
+```{r parameter_results, out.width='100%', echo = FALSE}
+#One parameter file
+
+Parameters <- Parameter_1 %>% 
+  full_join(Parameter_2) %>% 
+  full_join(Parameter_3) %>% 
+  full_join(Parameter_4) %>% 
+  full_join(Parameter_5) %>% 
+  full_join(Parameter_6) %>% 
+  full_join(Parameter_7) %>% 
+  rename('Parameter 1'=Minimum_leaf_number,
+         'Parmeter 2'=Ppsensitivity,
+         'Parameter 3'= Vrn_sensitivity,
+         'Parameter 4'= Base_Phyllochron,
+         'Parameter 5'= Phyllochron_PhotoPeriod_Effect,
+         'Parameter 6' = Early_Reproductive_Long_Day_Base,
+         'Parameter 7' = EarlyReproductivePpSensitivity) %>% 
+  select(1:4, 6:9) %>% 
+  mutate_if(is.numeric, round, digits=1)
+
+knitr::kable(head(Parameters, n = 5), format = "html", caption = "Table 4: APSIM Parameter results") %>% 
+  kable_styling("striped")
+```
+
 
 # My Digital Toolbox
 
-What digital tools have you been using in your project? Do you expect that everything will be able 
-to be completed within R, or will you need to work with multiple tools to get the right result?
-Which of the digital skills needed for your project have you learned since starting Data School?
 
-You can use all the usual R markdown features in writing a project summary, including lists:
 
-* R - dplyr, ggplot, ...
-* Python
-* SQL
 
 ## Favourite tool (optional)
 
 Is there a tool/package/function in particular that you've enjoyed using? Give it a special shout out here. What about this tool makes it your favourite?
 
-![](https://raw.githubusercontent.com/tidyverse/ggplot2/master/man/figures/logo.png){.pull-right width=100px}
+![](resources/img/tidyverse.png){width=100px}
+![](https://raw.githubusercontent.com/tidyverse/ggplot2/master/man/figures/logo.png){width=90px}
 
-No prizes for guessing mine:
+Tidyverse is so incredibly useful! I also like ggplot but find it frustrating.
+
 
 # My time went ...
 
-My time went on understanding the data and tidying it so I could attempt to work out what it meant. I also spent a large amount of time working out scripts to calculate the parameters. I especially spent time tring to learn about functions and using linear models to determine the parameter BasePhyllochron, I needed a lot of help to get the scripts to work. (Thanks Aswin)
+My time went on understanding and tidying the data so I could attempt to work out what it meant. I also spent a large amount of time working out scripts to calculate the APSIM parameters, especially Parameter 4,BasePhyllochron, which required use of a lm (Thanks Aswin). I also spent quite a lot of time trying to make the ggplots and improve their appearance.
 
 
 # Next steps
@@ -126,8 +425,4 @@ I am planning to learn how to use Tassel to carry out GWAS (Genome-wide Associat
 
 # My Data School Experience
 
-This summary is mostly about your project. However we would also like to hear about other
-parts of your Data School experience. What aspects of the program did you really enjoy? Have you
-tried applying the skills you have learned in your daily work? Have you been able to transfer this 
-knowledge to your team members? Any descriptions of the personal impact the program has 
-had are welcome here as well!
+I have learned so much from Data School Focus. I think one of the most important things I have learnt is to keep rawdata and manipulated data separate and to use R and Git to track any changes I make. The other thing I have learnt is to be consistent as to how data is entered, using consistent cultivar names, only having one type of data in each column and having notes and comments in separate columns or files. I have become a convert to using R and am not going back to Excel.
