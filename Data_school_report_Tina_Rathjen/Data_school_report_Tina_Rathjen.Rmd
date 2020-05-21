@@ -30,9 +30,9 @@ library(cowplot)
 My name is Tina Rathjen. I have been working as a molecular biologist for over 25 years on both animal and plant systems. The last 10 years I have worked at CSIRO and have been involved on several projects investigating different aspects of wheat physiology and growth. This has included carrying out laboratory, glasshouse and field experiments and previously data generated has been entered and analysed using Excel. Prior to Data School I did not know how to code or use R. Data School FOCUS has opened my eyes to a whole new world of data analysis and I hope to use this as a starting point to learn and apply new and exciting methodologies. 
 
 # My Project
-I work on a project within the GRDC's National Phenology Initiative which aims to predict the flowering time of wheat and barley cultivars in all the different cerael growing regions within Australia.
+I work on a project within the GRDC's National Phenology Initiative which aims to predict the flowering time of wheat and barley cultivars in many different growing regions within Australia.
 
-Wheat and barley cultivars have an optimal flowering window. Crops that flower too early can have reduced yield due to exposure to insufficient biomass accummulation or to cold or frost events. Conversely, crops that flower too late risk being exposed to water stress or heat events. Growers require accurate information to select the correct cultivar and sowing date for their conditions. For new cultivars it many take several years to conduct field trials to acccumulate sufficient data to predict flowering time.  Also a cultivar is currently marketed as a spring or winter wheat and also as slow, mid or fast maturing but these terms can be misleading. With new cultivars being released yearly growers may not have the knowledge to decide which cultivar to plant and what is the correct time of sowing for their conditions.
+Wheat and barley cultivars have an optimal flowering window. Crops that flower too early can have reduced yield due to insufficient biomass accummulation or exposure to cold or frost events. Conversely, crops that flower too late risk being exposed to water stress or heat events which can negatively effect yield. Growers require accurate information to select the correct cultivar and sowing date for their conditions. For new cultivars it may take several years to conduct field trials to acccumulate sufficient data to predict flowering time. With new cultivars being released yearly it is essential that growers have accurate information at the time of release.
 
 It is known that the major environmental factors influencing flowering time are thermal-time, photoperiod and vernalisation. APSIM models have been developed that use parameters based on these factors to model cultivar flowering times across the many cereal growing regions within Australia.  It is the aim of this project to improve and modify the existing APSIM models of wheat and barley. This study involved four controlled temperature experiments being carried out on 54 Australian wheat cultivars and 15 Wheat NILs (Near Isogenic Lines). Data generated from this study together with genomic data will be used to identify molecular markers important in predicting flowering time. Ultimately the aim is to develop an improved APSIM model based on parameterisation with molecular markers, controlled environment and/or genomic data to more accurately predict flowering time. 
 
@@ -40,12 +40,12 @@ It is known that the major environmental factors influencing flowering time are 
 
 ## Preliminary results
 
-The controlled experiments were carried out under four environmental conditions, SN (short days, no vernalisation), LN (long days, no vernalisation, SV (short days plus vernalisation) and LV (long days plus vernalisation) to determine the influence of photoperiod and vernalisation on flowering times. The temperature for all experiments was set at a constant 22C and measured every 30 minutes using a TinyTag data logger.  Traits measured include emergence date, flowering date, heading date, final leaf number and spikelet number. In addition haun stage, a measure of developmental growth stage based on leaf emergence, was recorded every third day from emergence to flowering. The data was initially in several sheets within one Excel file. I have used the tidyverse package to clean and arrange the data. I have separated the data into two files, Haun stage data, containing the haun scores and a second file Flowering data, containing all other traits.  I have also used the temperature data to convert dates to accumulated thermal time (degree-days). Tables 1 and 2 show a representation of the two tidied data files.
+The controlled experiments were carried out under four environmental conditions, SN (short days, no vernalisation), LN (long days, no vernalisation, SV (short days plus vernalisation) and LV (long days plus vernalisation) to determine the influence of photoperiod and vernalisation on flowering times. Vernalisation was carried out by imbiding seeds in water at 4C for 8 wekks prior to planting. The temperature for all experiments was set at a constant 22C and measured every 30 minutes using a TinyTag data logger.  Traits measured include emergence date, flowering date, heading date, final leaf number and spikelet number. In addition haun stage, a measure of developmental growth stage based on leaf emergence, was recorded every third day from emergence to flowering. The data was initially entered into several sheets within one Excel file. I have used the tidyverse package to clean and arrange the data. I have separated the data into two files, Haun_temp, containing the haun stage scores and a second file all_data_wide, containing all other traits.  I have also used the temperature data to convert dates to accumulated thermal time (degree days). Tables 1 and 2 show a representation of the two tidied data files.
 
 
 **Tables**
 
-``````{r mytable, out.width='90%', echo = FALSE}
+``````{r mytable, out.width='80%', echo = FALSE}
 
 #read files
 all_data_wide <- read_csv("C:/Users/rat05a/DATA School FOCUS/Data_school_report/data/analysed_data/all_data_wide.csv")
@@ -70,7 +70,7 @@ knitr::kable(head(haun_data2, n = 5), format = "html", caption = "Controlled Env
 
 ```
 
-```{r secondtable, out.width='90%', echo = FALSE}
+```{r secondtable, out.width='80%', echo = FALSE}
   all_data_wide2 <- cult_desc %>% 
   right_join(all_data_wide, by=c("genotype")) %>% 
   rename(Genotype="genotype", Environment="environment",
@@ -82,9 +82,11 @@ knitr::kable(head(all_data_wide2, n = 5), format = "html", caption = "Controlled
   kableExtra::scroll_box(width = "100%")
 ```
 
-**Plots from R**
+**Plots**
 
-```{r standard-plot, echo=FALSE, fig.align='center', fig.height=4, fig.width=6, out.width='100%'}
+Fig. 1 Flowering time results for all four environments
+
+```{r standard-plot, echo=FALSE, fig.align='center', fig.height=4, fig.width=6, out.width='80%', fig.cap ="Fig. 1 Flowering data in four environments"}
 
 flw_hd_data <- read_csv("data/analysed_data/fwr_hd_tt.csv")
 
@@ -134,8 +136,10 @@ p2 <- all_data_wide2  %>%
 
 
 ```
-
-```{r second_plot, echo=FALSE, fig.align='center', fig.height=4, fig.width=5, out.width='80%'}
+Fig. 1 shows the flowering time results for all four environments. Plants usually flower quickest in the LN environment, where all vernalisation requirements are met and the day length is long. Changes including shortening the day length or by removing vernalisation can delay flowering time, but the changes are cultivar specific. Fast spring lines are least affected,, whilst slow winter lines are most affected.
+    
+    
+```{r second_plot, echo=FALSE, fig.align='center', fig.height=4, fig.width=5, out.width='80%', cap.fig="Vernalisation effect on flowering time"}
 
 #vern effect
 
@@ -160,8 +164,9 @@ flw_hd_data_vern %>%
         panel.grid.minor.x  = element_blank(),
         panel.grid.major.x  = element_blank())
 ```
+Fig. 2 shows the effect of vernalisation on all cultivars. The blue dots represent flowering time in LN, long days plus vernalisation, the green dots LN, long days without vernalisation. Spring wheats, such as Axe and Forrest, have no vernalisation requirement so flower at the approximately the same time in both environments. Winter wheats, such as, Longsword and Rosella require vernalisation, growing them without vernalisation delays flowering by over 1500 degree days.
 
-```{r third_plot, echo=FALSE, fig.align='center', fig.height=4, fig.width=6, out.width='100%'}
+```{r third_plot, echo=FALSE, fig.align='center', fig.height=4, fig.width=6, out.width='80%', cap.fig="Photoperiod effect on Flowering time"}
 
 #Pp effect
 
@@ -187,8 +192,9 @@ flw_hd_data_pp %>%
         panel.grid.major.x  = element_blank())
 ```
 
+Fig. 3 shows the effect of photoperiod on all cultivars. The blue dots represent flowering time in LN, long days plus vernalisation, the red dots represent SV, short days with vernalisation. Changes in day length affect each cultivar in different ways. Some lines, such as Axe and Longsword, are photoperiod insensitive, the effect of changing day length on flowering time is very small. Other cultivars, such as Forrest and Rosella, are photoperiod sensitive and shortening day length delays flowering. Photoperiod sensitivity and vernalisation requirements are independently controlled. Within the subset of Australian cultivars used in this experiment are a range of different vernalisation and photoperiod sensitivity. For example Axe is insenitive to photoperiod and vernalisation whilst Rosella is sensitive to both. In comparison Forrest is photoperiod sensitive but doesn't require vernalisation whilst Longsword is photoperiod insensitive but requires vernalisation.
 
-```{r r fourth_plot, echo=FALSE, fig.align='center', fig.height=4, fig.width=6, out.width='100%'}
+```{r r fourth_plot, echo=FALSE, fig.align='center', fig.height=4, fig.width=6, out.width='100%', fig.cap="Vernalisation requirement and photoperiod sensitivity of Wheat cultivars"}
 #all varieties
 
 all_data_wide3 <-  all_data_wide2 %>% 
@@ -201,14 +207,14 @@ all_data_wide3 <-  all_data_wide2 %>%
 all_data_wide3%>% 
   ggplot(mapping=aes(x=vern_effect, y=pp_effect, colour=Maturing, shape=Type))+
   geom_point()+
-labs(title="Still to Fill in", x="Vernalisation effect", y="Photoperiod effect", size = 4)+
+labs(title="Vernalisation requirement and photoperiod sensitivity of Wheat cultivars", x="Vernalisation effect", y="Photoperiod effect", size = 4)+
   theme_bw()+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, size = 5),
         plot.title = (element_text(size=12, hjust = 0.5)),,
         panel.grid.minor.x  = element_blank())
 ```
-
-```{r standard-plot4, echo=FALSE, fig.align='center', fig.height=4, fig.width=6, out.width='100%'}
+Fig 4 shows the vernalisation requirement and photoperiod sensitivity of cultivars studied. Vernalisation effect is calculated as the difference between mean flowering time in LV and LN. Photoperiod sensitivity is calculated as the difference between mean flowering time in LV and SV.
+```{r standard-plot4, echo=FALSE, fig.align='center', fig.height=4, fig.width=6, out.width='100%', fig.cap ="yadayada"}
 
 #Plots of correlation
 plot1 <- ggplot(all_data_wide, mapping=aes(x=half_fwr, y=fwr_MS))+
