@@ -22,6 +22,7 @@ knitr::opts_chunk$set(
 library(tidyverse)
 library(kableExtra)
 library(cowplot)
+library(ggrepel)
 
 ```
 
@@ -32,15 +33,15 @@ My name is Tina Rathjen. I have been working as a molecular biologist for over 2
 # My Project
 I work on a project within the GRDC's National Phenology Initiative which aims to predict the flowering time of wheat and barley cultivars in many different growing regions within Australia.
 
-Wheat and barley cultivars have an optimal flowering window. Crops that flower too early can have reduced yield due to insufficient biomass accummulation or exposure to cold or frost events. Conversely, crops that flower too late risk being exposed to water stress or heat events which can negatively effect yield. Growers require accurate information to select the correct cultivar and sowing date for their conditions. For new cultivars it may take several years to conduct field trials to acccumulate sufficient data to predict flowering time. With new cultivars being released yearly it is essential that growers have accurate information at the time of release.
+Wheat and barley cultivars have an optimal flowering window. Crops that flower too early can have reduced yield due to insufficient biomass accummulation or exposure to cold or frost events. Conversely, crops that flower too late risk being exposed to water stress or heat events which can negatively effect yield. Growers require accurate information to select the correct cultivar and sowing date for their conditions. For new cultivars it may take several years to conduct field trials to accumulate sufficient data to predict flowering time. With new cultivars being released yearly it is essential that growers have accurate information at the time of release.
 
-It is known that the major environmental factors influencing flowering time are thermal-time, photoperiod and vernalisation. APSIM models have been developed that use parameters based on these factors to model cultivar flowering times across the many cereal growing regions within Australia.  It is the aim of this project to improve and modify the existing APSIM models of wheat and barley. This study involved four controlled temperature experiments being carried out on 54 Australian wheat cultivars and 15 Wheat NILs (Near Isogenic Lines). Data generated from this study together with genomic data will be used to identify molecular markers important in predicting flowering time. Ultimately the aim is to develop an improved APSIM model based on parameterisation with molecular markers, controlled environment and/or genomic data to more accurately predict flowering time. 
+It is known that the major environmental factors influencing flowering time are thermal time, photoperiod and vernalisation. APSIM models have been developed that use parameters based on these factors to model cultivar flowering times across the many cereal growing regions within Australia.  It is the aim of this project to improve and modify the existing APSIM models of wheat and barley. This study involved four controlled temperature experiments being carried out on 54 Australian wheat cultivars and 15 Wheat NILs (Near Isogenic Lines). Data generated from this study together with genomic data will be used to identify molecular markers important in predicting flowering time. Ultimately the aim is to develop an improved APSIM model based on parameterisation with molecular markers, controlled environment and/or genomic data to more accurately predict flowering time. 
 
 
 
 ## Preliminary results
 
-The controlled experiments were carried out under four environmental conditions, SN (short days, no vernalisation), LN (long days, no vernalisation, SV (short days plus vernalisation) and LV (long days plus vernalisation) to determine the influence of photoperiod and vernalisation on flowering times. Vernalisation was carried out by imbiding seeds in water at 4C for 8 wekks prior to planting. The temperature for all experiments was set at a constant 22C and measured every 30 minutes using a TinyTag data logger.  Traits measured include emergence date, flowering date, heading date, final leaf number and spikelet number. In addition haun stage, a measure of developmental growth stage based on leaf emergence, was recorded every third day from emergence to flowering. The data was initially entered into several sheets within one Excel file. I have used the tidyverse package to clean and arrange the data. I have separated the data into two files, Haun_temp, containing the haun stage scores and a second file all_data_wide, containing all other traits.  I have also used the temperature data to convert dates to accumulated thermal time (degree days). Tables 1 and 2 show a representation of the two tidied data files.
+The controlled experiments were carried out under four environmental conditions, SN (short days, no vernalisation), LN (long days, no vernalisation), SV (short days plus vernalisation) and LV (long days plus vernalisation) to determine the influence of photoperiod and vernalisation on flowering times. Vernalisation was carried out by imbiding seeds in water at 4C for 8 weeks prior to planting. The temperature for all experiments was set at a constant 22C and measured every 30 minutes using a TinyTag data logger.  Traits measured include emergence date, flowering date, heading date, final leaf number and spikelet number. In addition haun stage, a measure of developmental growth stage based on leaf emergence, was recorded every third day from emergence to flowering. The data was initially entered into several sheets within one Excel file. I have used the tidyverse package to clean and arrange the data. I have separated the data into two files, Haun_temp, containing the haun stage scores and a second file all_data_wide, containing all other traits.  I have also used the temperature data to convert dates to accumulated thermal time (degree-days). Tables 1 and 2 show a representation of the two tidied data files.
 
 
 **Tables**
@@ -71,24 +72,26 @@ knitr::kable(head(haun_data2, n = 5), format = "html", caption = "Controlled Env
 ```
 
 ```{r secondtable, out.width='80%', echo = FALSE}
+
   all_data_wide2 <- cult_desc %>% 
   right_join(all_data_wide, by=c("genotype")) %>% 
   rename(Genotype="genotype", Environment="environment",
          Rep="reps", Type= "type", Maturing="speed") %>% 
     mutate_if(is.numeric, round, digits=0)
 
-knitr::kable(head(all_data_wide2, n = 5), format = "html", caption = "Controlled Environment - Flowering Data") %>% 
+knitr::kable(head(all_data_wide2, n = 5), format = "html", caption = "Controlled Environment - Flowering Time Data") %>% 
   kable_styling("striped")%>%
   kableExtra::scroll_box(width = "100%")
 ```
 
+
+
 **Plots**
 
-Fig. 1 Flowering time results for all four environments
+Figure 1 : Flowering time results for all  culivars grown in four environments
 
 ```{r standard-plot, echo=FALSE, fig.align='center', fig.height=4, fig.width=6, out.width='80%', fig.cap ="Fig. 1 Flowering data in four environments"}
 
-flw_hd_data <- read_csv("data/analysed_data/fwr_hd_tt.csv")
 
  #flowering spring 
 p1 <- all_data_wide2  %>% 
@@ -100,7 +103,7 @@ p1 <- all_data_wide2  %>%
   geom_point(size=1.5)+ 
   facet_wrap(~Maturing, scales="free_x", nrow=1)+
   scale_colour_manual(values=c("SV" = "#e41a1c", "SN" = "#984ea3", "LN" = "#4daf4a", "LV" = "#377eb8"), aesthetics = c("colour", "fill"))+
-  labs(title="Flowering time of Spring Wheats", x = "", y = "Mean Flowering Time, degree-days", 
+  labs(title="Flowering time of spring wheats", x = "", y = "Mean Flowering Time, degree-days", 
        colour="Environment", size = 4)+
   theme_bw()+
   theme(axis.text.x = element_blank(),
@@ -108,7 +111,7 @@ p1 <- all_data_wide2  %>%
         legend.position="none",
         panel.grid.minor.x  = element_blank(),
         panel.grid.major.x  = element_blank())+
-  ylim(500,5000)
+  ylim(0,5000)
   
 
 #winter wheats
@@ -121,7 +124,7 @@ p2 <- all_data_wide2  %>%
   geom_point(size=1.5)+ 
   facet_wrap(~Maturing, scales="free_x", nrow=1)+
   scale_colour_manual(values=c("SV" = "#e41a1c", "SN" = "#984ea3", "LN" = "#4daf4a", "LV" = "#377eb8"), aesthetics = c("colour", "fill"))+
-  labs(title="Flowering time of Winter Wheats", x = "", y = "Mean Flowering Time, degree-days", 
+  labs(title="Flowering time of winter wheats", x = "", y = "Mean Flowering Time, degree-days", 
        colour="Environment", size = 4)+
   theme_bw()+
   theme(axis.text.x = element_blank(),
@@ -130,16 +133,20 @@ p2 <- all_data_wide2  %>%
         axis.title.y= element_blank(),
         panel.grid.minor.x  = element_blank(),
         panel.grid.major.x  = element_blank())+
-  ylim(500,5000)
+  ylim(0,5000)
 
  plot_grid(p1, p2, rel_widths=c(3.5,4))
 
 
 ```
-Fig. 1 shows the flowering time results for all four environments. Plants usually flower quickest in the LN environment, where all vernalisation requirements are met and the day length is long. Changes including shortening the day length or by removing vernalisation can delay flowering time, but the changes are cultivar specific. Fast spring lines are least affected,, whilst slow winter lines are most affected.
+Figure 1 shows the flowering time results for all four environments. Plants usually flower quickest in the LN environment, where all vernalisation requirements are met and the day length is long. Changes including shortening the day length or by removing vernalisation can delay flowering time, but the extent of the change is cultivar specific. The flowering times of fast spring lines are least affected, whilst slow winter lines are most affected.
     
-    
-```{r second_plot, echo=FALSE, fig.align='center', fig.height=4, fig.width=5, out.width='80%', cap.fig="Vernalisation effect on flowering time"}
+Figure 2 : Vernalisation effect on flowering time  
+```{r second_plot, echo=FALSE, fig.align='center', fig.height=4, fig.width=6, out.width='80%', cap.fig="Vernalisation effect on flowering time"}
+
+#long form of data
+
+flw_hd_data <- read_csv("data/analysed_data/fwr_hd_tt.csv")
 
 #vern effect
 
@@ -151,20 +158,37 @@ flw_hd_data_vern <-  flw_hd_data %>%
   filter(mean_tt!="NA") %>% 
   spread(key=environment, value=mean_tt)
   
-flw_hd_data_vern %>% 
-  ggplot(mapping=aes(x=reorder(genotype, LN), y=LN))+
-  geom_point(size=1.5, colour="#4daf4a")+
-  geom_point(mapping=aes(x=reorder(genotype, LN),y=LV),colour="#377eb8")+
-  labs(title="Vernalisation effect on Flowering time",
-  y = "Mean Flowering Time, degree days", colour="Environment", size = 4)+
+cult_sel <- flw_hd_data_vern %>% 
+  filter(genotype=="AXE" |genotype=="FORREST"|genotype=="LONGSWORD"|genotype=="MANNING")
+
+ggplot()+
+  geom_point(data=flw_hd_data_vern,mapping=aes(x=reorder(genotype, LN), y=LN,colour="#4daf4a"),size=1.5)+
+  geom_point(data=flw_hd_data_vern,mapping=aes(x=reorder(genotype, LN),y=LV, colour="#377eb8"),size=1.5)+
+  geom_label_repel(data=cult_sel,mapping=aes(x=reorder(genotype, LN),y=LV,  label=genotype), colour="black",
+             size=2, angle=90, vjust=3)+
+    labs(title="Vernalisation effect on flowering time", 
+       y = "Mean Flowering Time, degree-days", colour= "Environment", size = 4)+
+  scale_color_identity(name = "Environment",
+                       breaks = c("#4daf4a", "#377eb8"),
+                       labels = c("LN", "LV"),
+                       guide = "legend")+
   theme_bw()+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, size = 5),
-        plot.title = (element_text(size=12, hjust = 0.5)),
-        axis.title.x= element_blank(),
-        panel.grid.minor.x  = element_blank(),
-        panel.grid.major.x  = element_blank())
+          plot.title = (element_text(size=10, hjust = 0.5)),
+          axis.title.x= element_blank(),
+          panel.grid.minor.x  = element_blank(),
+          panel.grid.major.x  = element_blank(),
+          legend.position = "bottom",
+          axis.text.y = element_text(size = 5))+
+  ylim(0,4000)
+
+
+
+   
 ```
-Fig. 2 shows the effect of vernalisation on all cultivars. The blue dots represent flowering time in LN, long days plus vernalisation, the green dots LN, long days without vernalisation. Spring wheats, such as Axe and Forrest, have no vernalisation requirement so flower at the approximately the same time in both environments. Winter wheats, such as, Longsword and Rosella require vernalisation, growing them without vernalisation delays flowering by over 1500 degree days.
+Figure 2 shows the effect of vernalisation on all cultivars. The blue dots represent flowering time in LN, long days plus vernalisation, the green dots LN, long days without vernalisation. Spring wheats, such as Axe and Forrest, have no vernalisation requirement so flower at the approximately the same time in both environments. Winter wheats, such as, Longsword and Rosella require vernalisation, growing them without vernalisation delays flowering by over 1500 degree-days.
+
+Figure 3 : Photoperiod effect on flowering time
 
 ```{r third_plot, echo=FALSE, fig.align='center', fig.height=4, fig.width=6, out.width='80%', cap.fig="Photoperiod effect on Flowering time"}
 
@@ -178,23 +202,35 @@ flw_hd_data_pp <-  flw_hd_data %>%
   filter(mean_tt!="NA") %>% 
   spread(key=environment,value=mean_tt) 
   
+ggplot()+
+    geom_point(data=flw_hd_data_pp,mapping=aes(x=reorder(genotype, SV), y=LV,colour="#377eb8"),size=1.5)+
+    geom_point(data=flw_hd_data_pp,mapping=aes(x=reorder(genotype, SV),y=SV, colour="#e41a1c"),size=1.5)+
+    geom_label_repel(data=cult_sel,mapping=aes(x=reorder(genotype, LN),y=LV,  label=genotype), colour="black",
+             size=2, angle=90, vjust=3)+
+    labs(title="Photoperiod effect on Flowering time", 
+         y = "Mean Flowering Time, degree-days", colour= "Environment", size = 6)+
+    scale_color_identity(name = "Environment",
+                         breaks = c("#377eb8", "#e41a1c"),
+                         labels = c("LV", "SV"),
+                         guide = "legend")+
+    theme_bw()+
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, size = 5),
+          plot.title = (element_text(size=10, hjust = 0.5)),
+          axis.title.x= element_blank(),
+          panel.grid.minor.x  = element_blank(),
+          panel.grid.major.x  = element_blank(),
+          legend.position = "bottom",
+          axis.text.y = element_text(size = 5))+
+  ylim(0,4000)
 
-flw_hd_data_pp %>% 
-  ggplot(mapping=aes(x=reorder(genotype, SV), y=LV))+
-  geom_point(size=1.5, colour="#377eb8")+
-  geom_point(mapping=aes(x=reorder(genotype, SV),y=SV),colour="#e41a1c")+
-  labs(title="Photoperiod effect on Flowering time", x = "", y = "Mean Flowering Time, degree-days", size = 6)+
-  theme_bw()+
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, size = 5),
-        plot.title = element_text(size=12, hjust = 0.5),
-        axis.title.x= element_blank(),
-        panel.grid.minor.x  = element_blank(),
-        panel.grid.major.x  = element_blank())
+
 ```
 
-Fig. 3 shows the effect of photoperiod on all cultivars. The blue dots represent flowering time in LN, long days plus vernalisation, the red dots represent SV, short days with vernalisation. Changes in day length affect each cultivar in different ways. Some lines, such as Axe and Longsword, are photoperiod insensitive, the effect of changing day length on flowering time is very small. Other cultivars, such as Forrest and Rosella, are photoperiod sensitive and shortening day length delays flowering. Photoperiod sensitivity and vernalisation requirements are independently controlled. Within the subset of Australian cultivars used in this experiment are a range of different vernalisation and photoperiod sensitivity. For example Axe is insenitive to photoperiod and vernalisation whilst Rosella is sensitive to both. In comparison Forrest is photoperiod sensitive but doesn't require vernalisation whilst Longsword is photoperiod insensitive but requires vernalisation.
+Figure 3 shows the effect of photoperiod on all cultivars. The blue dots represent flowering time in LN, long days plus vernalisation, the red dots represent SV, short days with vernalisation. Changes in day length affect each cultivar in different ways. Some lines, such as Axe and Longsword, are photoperiod insensitive, the effect of changing day length on flowering time is very small. Other cultivars, such as Forrest and Rosella, are photoperiod sensitive and shortening day length delays flowering. Photoperiod sensitivity and vernalisation requirements are independently controlled. Within the subset of Australian cultivars used in this experiment are a range of different vernalisation and photoperiod sensitivities. For example Axe is insensitive to photoperiod and vernalisation whilst Rosella is sensitive to both. In comparison Forrest is photoperiod sensitive but doesn't require vernalisation whilst Longsword is photoperiod insensitive but requires vernalisation.
 
-```{r r fourth_plot, echo=FALSE, fig.align='center', fig.height=4, fig.width=6, out.width='100%', fig.cap="Vernalisation requirement and photoperiod sensitivity of Wheat cultivars"}
+Figure 4 : Vernalisation requirement and photoperiod sensitivity of wheat cultivars
+
+```{r r fourth_plot, echo=FALSE, fig.align='center', fig.height=4, fig.width=6, out.width='80%', cap.fig="Vernalisation requirement and photoperiod sensitivity of wheat cultivars"}
 #all varieties
 
 all_data_wide3 <-  all_data_wide2 %>% 
@@ -204,59 +240,84 @@ all_data_wide3 <-  all_data_wide2 %>%
   mutate(vern_effect=(mean(LN)-mean(LV)/mean(LV)), pp_effect=(mean(SV)-mean(LV)/mean(LV))) %>% 
   unite(mat_type, c(Maturing, Type), sep = " ", remove = FALSE)
 
-all_data_wide3%>% 
-  ggplot(mapping=aes(x=vern_effect, y=pp_effect, colour=Maturing, shape=Type))+
+cult_sel2 <- all_data_wide3 %>% 
+  filter(Genotype=="AXE" |Genotype=="FORREST"|Genotype=="LONGSWORD"|Genotype=="MANNING") %>% 
+  filter(Rep=="1")
+
+
+  ggplot(data=all_data_wide3, mapping=aes(x=vern_effect, y=pp_effect, shape=Type, colour=Maturing, fill=Maturing))+
   geom_point()+
+    geom_label_repel(data=cult_sel2, mapping=aes(x=vern_effect, y=pp_effect, label=Genotype), colour="black",
+             size=2, angle=90, vjust=3)+
 labs(title="Vernalisation requirement and photoperiod sensitivity of Wheat cultivars", x="Vernalisation effect", y="Photoperiod effect", size = 4)+
+   scale_shape_manual(values=c(16 ,24)) +
   theme_bw()+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, size = 5),
-        plot.title = (element_text(size=12, hjust = 0.5)),,
-        panel.grid.minor.x  = element_blank())
+        plot.title = (element_text(size=10, hjust = 0.5)),
+        panel.grid.minor.x  = element_blank(),
+        axis.text.y = element_text(size = 5),
+         axis.title = element_text(size = 8))
 ```
-Fig 4 shows the vernalisation requirement and photoperiod sensitivity of cultivars studied. Vernalisation effect is calculated as the difference between mean flowering time in LV and LN. Photoperiod sensitivity is calculated as the difference between mean flowering time in LV and SV.
-```{r standard-plot4, echo=FALSE, fig.align='center', fig.height=4, fig.width=6, out.width='100%', fig.cap ="yadayada"}
+Figure 4 shows the vernalisation requirement and photoperiod sensitivity of the cultivars studied. Vernalisation effect is calculated as the difference between mean flowering time in LV and LN. Photoperiod sensitivity is calculated as the difference between mean flowering time in LV and SV.
+ 
+ Figure 5: Correlation of flowering time with the other traits
+```{r standard-plot4, echo=FALSE, fig.align='center', fig.height=4, fig.width=6, out.width='80%', fig.cap ="Correlation of flowering time with the other traits"}
 
-#Plots of correlation
+#Correlations with flowering
+
 plot1 <- ggplot(all_data_wide, mapping=aes(x=half_fwr, y=fwr_MS))+
   geom_point(alpha=0.4, colour="grey49")+
   geom_smooth(method=lm, colour="blue")+
-  labs(title="yada", x = "50% Flowering, degree-days", y = "Flowering MS, degree-days", size = 6)+
+  labs(title="Relationship of flowering time on mainstem versus 50% flowering", x = "50% Flowering, degree-days", y = "Flowering MS, degree-days", size = 2)+
   theme_bw()+
-  theme(plot.title = element_text(size=12, hjust = 0.5),
-        panel.grid.minor.x  = element_blank())
+  theme(plot.title = element_text(size=6, hjust = 0.5),
+        panel.grid.minor.x  = element_blank(),
+        axis.title = element_text(size = 8),
+        axis.text = element_text(size = 6))
 
 plot2 <- ggplot(all_data_wide, mapping=aes(x=half_fwr, y=half_hd))+
   geom_point(alpha=0.4, colour="grey49")+
   geom_smooth(method=lm, colour="blue")+
-  labs(title="yada", x = "50% Flowering, degree-days", y = "Heading MS, degree-days", size = 6)+
+  labs(title="Relationship of flowering time and heading time", x = "50% Flowering, degree-days", y = "Heading MS, degree-days", size = 2)+
   theme_bw()+
-  theme(plot.title = element_text(size=12, hjust = 0.5),
-        panel.grid.minor.x  = element_blank())
+  theme(plot.title = element_text(size=6, hjust = 0.5),
+        panel.grid.minor.x  = element_blank(),
+        axis.title = element_text(size = 8),
+        axis.text = element_text(size = 6))
 
 plot3 <- all_data_wide %>% 
   ggplot( mapping=aes(x=half_fwr, y=spikelet_no))+
   geom_point(alpha=0.4, colour="grey49")+
   geom_smooth(method=lm, colour="blue")+
-  labs(title="yada", x = "50% Flowering, degree-days", y = "Spikelet number", size = 6)+
+  labs(title="Relationship of flowering time versus spikelet number", x = "50% Flowering, degree-days", y = "Spikelet number", size = 2)+
   theme_bw()+
-  theme(plot.title = element_text(size=12, hjust = 0.5),
+  theme(plot.title = element_text(size=6, hjust = 0.5),
         panel.grid.minor.x  = element_blank(),
-        panel.grid.major.x  = element_blank())
+        panel.grid.major.x  = element_blank(),
+        axis.title = element_text(size = 8),
+        axis.text = element_text(size = 6))
 
 plot4 <- all_data_wide  %>%
   ggplot( mapping=aes(x=half_fwr, y=final_leaf))+
   geom_point(alpha=0.4, colour="grey49")+
   geom_smooth(method=lm, colour="blue")+
-  labs(title="yada", x = "50% Flowering, degree-days", y = "Final leaf number", size = 6)+
+  labs(title="Relationship of flowering time versus final leaf number", x = "50% Flowering, degree-days", y = "Final leaf number", size = 2)+
   theme_bw()+
-  theme(plot.title = element_text(size=12, hjust = 0.5),
-        panel.grid.minor.x  = element_blank())
+  theme(plot.title = element_text(size=6, hjust = 0.5),
+        panel.grid.minor.x  = element_blank(),
+        axis.title = element_text(size = 8),
+        axis.text = element_text(size = 6))
+
 
 plot_grid(plot1, plot2, plot3, plot4)
 
 ```
 
+Calculate R squared values - still to do
+
+
 **Parameter calculations**
+
 Seven parameters were calculated from the original data. Descriptions of the seven parameters are shown in Table 3. The parameters were calculated using R scripts  and a representation of the output shown in Table 4.
 ```{r parameter_list, out.width='100%', echo = FALSE}
 
