@@ -71,8 +71,8 @@ rename(Genotype="genotype", Environment="environment",
   filter(Genotype=="EMU_ROCK",Rep== 1) %>% 
   mutate_if(is.numeric, round, digits=1)
 
-knitr::kable(head(haun_data2, n = 5), format = "html", caption = "Controlled Environment - Haun Stage Data") %>% 
-  kable_styling("striped")
+knitr::kable(head(haun_data2, n = 5), format = "html", caption = " Controlled Environment - Haun Stage Data") %>% 
+  kable_styling("striped", full_width = F)
 
 ```
 
@@ -84,7 +84,7 @@ knitr::kable(head(haun_data2, n = 5), format = "html", caption = "Controlled Env
          Rep="reps", Type= "type", Maturing="speed") %>% 
     mutate_if(is.numeric, round, digits=0)
 
-knitr::kable(head(all_data_wide2, n = 5), format = "html", caption = "Controlled Environment - Flowering Time Data") %>% 
+knitr::kable(head(all_data_wide2, n = 5), format = "html", caption = " Controlled Environment - Flowering Time Data") %>% 
   kable_styling("striped")%>%
   kableExtra::scroll_box(width = "100%")
 ```
@@ -237,7 +237,7 @@ cult_sel2 <- all_data_wide3 %>%
   ggplot(data=all_data_wide3, mapping=aes(x=vern_effect, y=pp_effect, shape=Type, colour=Maturing))+
   geom_point(size=1.5)+
     geom_label_repel(data=cult_sel2, mapping=aes(x=vern_effect, y=pp_effect, label=Genotype), colour="black",
-             size=1.5, angle=90, vjust=3, fill="white")+
+             size=1.5, angle=90, vjust=-2, fill="white")+
 labs(title="Vernalisation requirement and photoperiod sensitivity of Wheat cultivars", x="Vernalisation effect", y="Photoperiod effect", colour= "Flowering rate", shape= "Cultivar Type", size = 4)+
    scale_shape_manual(values=c(16,17)) +
   theme_bw()+
@@ -266,7 +266,7 @@ plot1 <- ggplot(all_data_wide, mapping=aes(x=half_fwr, y=tt_final_leaf))+
   theme_bw()+
   theme(plot.title = element_text(size=6, hjust = 0.5),
         panel.grid.minor.x  = element_blank(),
-        axis.title = element_text(size = 8),
+        axis.title = element_text(size = 6),
         axis.text = element_text(size = 6))
 
 plot2 <- ggplot(all_data_wide, mapping=aes(x=half_fwr, y=half_hd))+
@@ -276,7 +276,7 @@ plot2 <- ggplot(all_data_wide, mapping=aes(x=half_fwr, y=half_hd))+
   theme_bw()+
   theme(plot.title = element_text(size=6, hjust = 0.5),
         panel.grid.minor.x  = element_blank(),
-        axis.title = element_text(size = 8),
+        axis.title = element_text(size = 6),
         axis.text = element_text(size = 6))
 
 plot3 <- all_data_wide %>% 
@@ -288,7 +288,7 @@ plot3 <- all_data_wide %>%
   theme(plot.title = element_text(size=6, hjust = 0.5),
         panel.grid.minor.x  = element_blank(),
         panel.grid.major.x  = element_blank(),
-        axis.title = element_text(size = 8),
+        axis.title = element_text(size = 6),
         axis.text = element_text(size = 6))
 
 plot4 <- all_data_wide  %>%
@@ -299,7 +299,7 @@ plot4 <- all_data_wide  %>%
   theme_bw()+
   theme(plot.title = element_text(size=6, hjust = 0.5),
         panel.grid.minor.x  = element_blank(),
-        axis.title = element_text(size = 8),
+        axis.title = element_text(size = 6),
         axis.text = element_text(size = 6))
 
 
@@ -323,10 +323,10 @@ parameter_list <- data.frame("Parameter"=c("Parameter_1","Parameter_2","Paramete
                              "Calculation"=c("LV mean final leaf number","SV mean final leaf number minus LV mean final leaf number",
                                              "LN mean final leaf number minus LV mean final leaf number",
                                              "Slope of accummulated thermal time against mean leaf number between 3 and 7 in LV",
-                                             "Ratio of Phyllochron SV to Phyllochron LV","accumulated thermal time at flowering divided by BasePhyllochron",
+                                             "Ratio of Phyllochron SV to Phyllochron LV","Accumulated thermal time at flowering divided by BasePhyllochron",
                                              "Difference of accumulated time between LV and SV treatment divided by BasePhyllochron"))
 
-knitr::kable(head(parameter_list, n = 7), format = "html", caption = "Table 3 : APSIM Parameters description") %>% 
+knitr::kable(head(parameter_list, n = 7), format = "html", caption = " APSIM Parameters description") %>% 
   kable_styling("striped")
 
 ```
@@ -480,8 +480,8 @@ Parameters <- Parameter_1 %>%
   select(1:4, 6:9) %>% 
   mutate_if(is.numeric, round, digits=1)
 
-knitr::kable(head(Parameters, n = 5), format = "html", caption = "Table 4: APSIM Parameter results") %>% 
-  kable_styling("striped")
+knitr::kable(head(Parameters, n = 5), format = "html", caption = " APSIM Parameter results") %>% 
+  kable_styling("striped", full_width = F)
 ```
 
 
