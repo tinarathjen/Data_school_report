@@ -498,6 +498,7 @@ knitr::kable(head(Parameters, n = 5), format = "html", caption = "Table 4: APSIM
 ![](https://raw.githubusercontent.com/tidyverse/ggplot2/master/man/figures/logo.png){width=90px}
 ![](resources/img/cowplot.png){width=90px}
 ![](resources/img/lubridate.jpg){width=110px}
+![](resources/img/rmarkdown.png){width=100px}
 
 Tidyverse is so incredibly useful! I also like ggplot but find it frustrating because there are so many options.
 
