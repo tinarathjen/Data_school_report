@@ -99,17 +99,20 @@ knitr::kable(head(all_data_wide2, n = 5), format = "html", caption = " Controlle
 ```{r standard-plot, echo=FALSE, fig.align='center', fig.height=4, fig.width=6, out.width='80%'}
 
 
-
- all_data_wide2  %>% 
+cult_desc %>% 
+  right_join(flw_hd_data, by=c("genotype")) %>% 
+  rename(Genotype="genotype", Environment="environment",
+         Rep="reps", Type= "type", Maturing="speed")  %>% 
   unite(mat_type, c(Maturing, Type), sep = " ", remove = FALSE) %>% 
-  mutate( (mat_type = as.factor(mat_type))) %>% mutate(mat_type=fct_relevel(mat_type, c("Slow Spring", 
-                                                                       "Mid Spring", "Fast Spring",
-                                                                       "Slow Winter", "Mid Winter",
-                                                                       "Fast Winter"))) %>%                
+  mutate( (mat_type = as.factor(mat_type))) %>% 
+  mutate(mat_type=fct_relevel(mat_type, c("Slow Spring", "Mid Spring", "Fast Spring",
+                                          "Slow Winter", "Mid Winter", 
+                                          "Fast Winter"))) %>% 
+  filter(obs_type=="half_fwr") %>% 
   group_by(Genotype, Environment, mat_type) %>% 
-  summarise(mean_fwr = mean(half_fwr)) %>% 
+  summarise(mean_fwr = mean(thermaltime)) %>% 
   filter(mean_fwr != "NA") %>% 
-  ggplot(mapping=aes(x=Genotype, y=mean_fwr, colour=Environment))+
+ggplot(mapping=aes(x=Genotype, y=mean_fwr, colour=Environment))+
   geom_point(size=1)+ 
   facet_wrap(~fct_relevel(mat_type), scales="free_x", nrow=1)+
   scale_colour_manual(values=c("SV" = "#e41a1c", "SN" = "#984ea3", "LN" = "#4daf4a", "LV" = "#377eb8"), aesthetics = c("colour", "fill"))+
@@ -124,7 +127,8 @@ knitr::kable(head(all_data_wide2, n = 5), format = "html", caption = " Controlle
   ylim(0,5000)
 
 ```
-Figure 1. Flowering time results for all four environments. Plants usually flower quickest in the LV environment, where all vernalisation requirements are met and the day length is long. Shortening the day length or removing vernalisation can delay flowering time, but there is a genotypic effect. The flowering times of spring lines are least affected by vernalisation, whilst slow winter lines are most affected. The flowering times of fast lines are least affected by photoperiod, whilst slow lines are most affected. 
+Figure 1. Flowering time results for all four environments. 
+Plants usually flower quickest in the LV environment, where all vernalisation requirements are met and the day length is long. Shortening the day length or removing vernalisation can delay flowering time, but there is a genotypic effect. The flowering times of spring lines are least affected by vernalisation, whilst slow winter lines are most affected. The flowering times of fast lines are least affected by photoperiod, whilst slow lines are most affected. 
     
     
     
@@ -171,7 +175,8 @@ ggplot()+
 
    
 ```
-Figure 2. The effect of vernalisation on flowering time of cultivars.  Spring wheats, Axe and Forrest, have no vernalisation requirement and therefore flower at approximately the same time in both environments. Winter wheats, Longsword and Kittyhawk, require vernalisation, and without vernalisation flowering is delayed.
+Figure 2. The effect of vernalisation on flowering time of cultivars.  
+Spring wheats, Axe and Forrest, have no vernalisation requirement and therefore flower at approximately the same time in both environments. Winter wheats, Longsword and Kittyhawk, require vernalisation, and without vernalisation flowering is delayed.
 
 
 
@@ -213,43 +218,45 @@ ggplot()+
 
 ```
 
-Figure 3. The effect of photoperiod on cultivars. There is a genotyptic response in daylength. FAst maturing cultivars, Axe and Longsword, are photoperiod insensitive, the effect of changing day length on flowering time is very small. Conversely, slow cultivars, Forrest and Kittyhawk, are photoperiod sensitive and shorter day length delays flowering. Photoperiod sensitivity and vernalisation requirements have separate genetic controls. The Australian cultivars used in this experiment display a range of  vernalisation and photoperiod sensitivities. 
+Figure 3. The effect of photoperiod on cultivars. 
+There is a genotyptic response in daylength. FAst maturing cultivars, Axe and Longsword, are photoperiod insensitive, the effect of changing day length on flowering time is very small. Conversely, slow cultivars, Forrest and Kittyhawk, are photoperiod sensitive and shorter day length delays flowering. Photoperiod sensitivity and vernalisation requirements have separate genetic controls. The Australian cultivars used in this experiment display a range of  vernalisation and photoperiod sensitivities. 
 
 
 
 **Figure 4 : Vernalisation requirement and photoperiod sensitivity of wheat cultivars**
 
 ```{r r fourth_plot, echo=FALSE, fig.align='center', fig.height=4, fig.width=6, out.width='80%'}
-#all varieties
-
-all_data_wide3 <-  all_data_wide2 %>% 
-  select(1:5,8) %>% 
-  spread(key=Environment,value=half_fwr) %>% 
-  group_by(Genotype) %>% 
-  mutate(vern_effect=(mean(LN)-mean(LV)/mean(LV)), pp_effect=(mean(SV)-mean(LV)/mean(LV))) %>% 
-  unite(mat_type, c(Maturing, Type), sep = " ", remove = FALSE)
-
-cult_sel2 <- all_data_wide3 %>% 
-  filter(Genotype=="AXE" |Genotype=="FORREST"|Genotype=="LONGSWORD"|Genotype=="KITTYHAWK") %>% 
-  filter(Rep=="1")
 
 
-  ggplot(data=all_data_wide3, mapping=aes(x=vern_effect, y=pp_effect, shape=Type, colour=Maturing))+
+  
+     flw_data2 <- flw_hd_data %>% 
+  filter(obs_type=="half_fwr") %>% 
+  spread(key=environment,value=thermaltime) %>% 
+    group_by(genotype) %>% 
+    summarise(vern_effect=(mean(LN-LV)), pp_effect=(mean(SV-LV))) %>%  
+left_join(cult_desc, by=c("genotype"))  %>% 
+  unite(mat_type, c(speed, type), sep = " ", remove = FALSE) 
+  
+cult_sel2 <- flw_data2 %>% 
+  filter(genotype=="AXE" |genotype=="FORREST"|genotype=="LONGSWORD"|genotype=="KITTYHAWK") 
+
+  ggplot(data=flw_data2, mapping=aes(x=vern_effect, y=pp_effect, shape=type, colour=speed))+
   geom_point(size=1.5)+
-    geom_label_repel(data=cult_sel2, mapping=aes(x=vern_effect, y=pp_effect, label=Genotype), colour="black",
-             size=1.5, angle=90, vjust=-2, fill="white")+
-labs(title="Vernalisation requirement and photoperiod sensitivity of Wheat cultivars", x="Vernalisation effect", y="Photoperiod effect", colour= "Flowering rate", shape= "Cultivar Type", size = 4)+
-   scale_shape_manual(values=c(16,17)) +
+  geom_label_repel(data=cult_sel2, mapping=aes(x=vern_effect, y=pp_effect, label=genotype), colour="black",
+                   size=1.5, angle=90, vjust=-2, fill="white")+
+  labs(title="Vernalisation requirement and photoperiod sensitivity of Wheat cultivars", x="Vernalisation effect", y="Photoperiod effect", colour= "Flowering rate", shape= "Cultivar Type", size = 4)+
+  scale_shape_manual(values=c(16,17)) +
   theme_bw()+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, size = 5),
         plot.title = (element_text(size=10, hjust = 0.5)),
         panel.grid.minor.x  = element_blank(),
         axis.text.y = element_text(size = 5),
-         axis.title = element_text(size = 8))
+        axis.title = element_text(size = 8))
 
 ```
 
-Figure 4. The vernalisation requirement and photoperiod sensitivity of the cultivars studied. Vernalisation effect is calculated as the difference between mean flowering time in LV and LN. Photoperiod sensitivity is calculated as the difference between mean flowering time in LV and SV.
+Figure 4. The vernalisation requirement and photoperiod sensitivity of the cultivars studied. 
+Vernalisation effect is calculated as the difference between mean flowering time in LV and LN. Photoperiod sensitivity is calculated as the difference between mean flowering time in LV and SV.
  
  
  
@@ -488,19 +495,15 @@ knitr::kable(head(Parameters, n = 5), format = "html", caption = " APSIM Paramet
 # My Digital Toolbox
 
 
-
-
-## Favourite tool (optional)
-
-
-
 ![](resources/img/tidyverse.png){width=100px}
 ![](https://raw.githubusercontent.com/tidyverse/ggplot2/master/man/figures/logo.png){width=90px}
 ![](resources/img/cowplot.png){width=90px}
 ![](resources/img/lubridate.jpg){width=110px}
 ![](resources/img/rmarkdown.png){width=100px}
 
-Tidyverse is so incredibly useful! I also like ggplot but find it frustrating because there are so many options.
+## Favourite tool
+
+Tidyverse is my favorite as it is so incredibly useful! I also like ggplot but find it frustrating because there are so many options.
 
 
 # My time went ...
