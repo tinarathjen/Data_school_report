@@ -35,7 +35,7 @@ I work on a project within the GRDC's National Phenology Initiative which aims t
 
 Wheat cultivars have an optimal flowering window. Crops that flower too early can have lower yield due to insufficient biomass accummulation or exposure to cold or frost events. Conversely, crops that flower too late risk being exposed to water stress or heat events which can negatively impacts yield. Growers require accurate information to select the correct cultivar and sowing date for their farming conditions. For new cultivars it takes several years conducting field trials to accumulate sufficient data to predict flowering time. With new cultivars being released it is essential that growers have accurate information by the time of release.
 
-It is known that the major environmental factors influencing flowering time are thermal time, photoperiod and vernalisation. APSIM models have been developed that use parameters based on these factors to model cultivar flowering times across the many cereal growing regions within Australia.  It is the aim of this project to improve and modify the existing APSIM models of wheat based on parameterisation with molecular markers, controlled environment and/or genomic data to more accurately predict flowering time. This study involved four controlled temperature experiments being carried out on 54 Australian wheat cultivars and 15 Wheat NILs (Near Isogenic Lines). 
+The major environmental factors influencing flowering time are thermal time, photoperiod and vernalisation. APSIM models have been developed that use parameters based on these factors to model cultivar flowering times across the many cereal growing regions within Australia.  This project aims to improve and modify the existing APSIM models of wheat based on parameterisation with molecular markers, controlled environment and/or genomic data to more accurately predict flowering time. This study involved four controlled temperature experiments being carried out on 54 Australian wheat cultivars and 15 Wheat NILs (Near Isogenic Lines). 
 
 
 
@@ -219,7 +219,7 @@ ggplot()+
 ```
 
 Figure 3. The effect of photoperiod on cultivars. 
-There is a genotyptic response in daylength. FAst maturing cultivars, Axe and Longsword, are photoperiod insensitive, the effect of changing day length on flowering time is very small. Conversely, slow cultivars, Forrest and Kittyhawk, are photoperiod sensitive and shorter day length delays flowering. Photoperiod sensitivity and vernalisation requirements have separate genetic controls. The Australian cultivars used in this experiment display a range of  vernalisation and photoperiod sensitivities. 
+There is a genotyptic response in daylength. Fast maturing cultivars, Axe and Longsword, are photoperiod insensitive, the effect of changing day length on flowering time is small. Conversely, slow cultivars, Forrest and Kittyhawk, are photoperiod sensitive and shorter day length delays flowering. Photoperiod sensitivity and vernalisation requirements have separate genetic controls. The Australian cultivars used in this experiment display a range of  vernalisation and photoperiod sensitivities. 
 
 
 
