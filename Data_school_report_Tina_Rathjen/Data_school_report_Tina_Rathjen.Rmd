@@ -41,7 +41,7 @@ The major environmental factors influencing flowering time are thermal time, pho
 
 ## Preliminary results
 
-The controlled experiments were carried out under four environmental conditions, SN (short days, no vernalisation), LN (long days, no vernalisation), SV (short days plus vernalisation) and LV (long days plus vernalisation) to determine the influence of photoperiod and vernalisation on flowering times. Vernalisation was carried out by imbiding seeds at 4C for 8 weeks prior to planting. The temperature for all experiments was set at 22C and measured every 30 minutes using a TinyTag data logger.  Traits measured include emergence date, flowering date, heading date, final leaf number and spikelet number. In addition Haun stage, a measure of developmental growth stage based on leaf emergence, was recorded every third day from emergence to flowering. The data was initially entered into several sheets within one Excel file. I have used the tidyverse package to clean and arrange the data. I have separated the data into two files, Haun_temp, containing the haun stage scores and a second file all_data_wide, containing all other traits.  I used the temperature data to convert dates to accumulated thermal time (degree-days). Tables 1 and 2 show a representation of the two tidied data files.
+The controlled experiments were carried out under four environmental conditions, SN (short days, no vernalisation), LN (long days, no vernalisation), SV (short days plus vernalisation) and LV (long days plus vernalisation) to determine the influence of photoperiod and vernalisation on flowering times. Vernalisation was carried out by imbiding seeds at 4<sup>o</sup>C for 8 weeks prior to planting. The temperature for all experiments was set at 22<sup>o</sup>C and measured every 30 minutes using a TinyTag data logger.  Traits measured include emergence date, flowering date, heading date, final leaf number and spikelet number. In addition Haun stage, a measure of developmental growth stage based on leaf emergence, was recorded every third day from emergence to flowering. The data was initially entered into several sheets within one Excel file. I have used the tidyverse package to clean and arrange the data. I have separated the data into two files, Haun_temp, containing the haun stage scores and a second file all_data_wide, containing all other traits.  I used the temperature data to convert dates to accumulated thermal time (degree-days). Tables 1 and 2 show a representation of the two tidied data files.
 
 
 **Tables**
@@ -503,7 +503,7 @@ knitr::kable(head(Parameters, n = 5), format = "html", caption = " APSIM Paramet
 
 ## Favourite tool
 
-Tidyverse is my favorite as it is so incredibly useful! I also like ggplot but find it frustrating because there are so many options.
+Tidyverse is my favorite tool as it is so incredibly useful! I also like ggplot but find it frustrating because there are too many options.
 
 
 # My time went ...
@@ -512,9 +512,9 @@ My time went on understanding and tidying the data so I could attempt to work ou
 
 
 # Next steps
-It would also be interesting to examine the data further. One possibility is to see how the data looks when considering photo-thermal time (takes into account the different daylength) instead of just thermal-time.
+It would be interesting to examine the data further. One possibility is to see how the data looks when considering photo-thermal time, which takes into account daylength in addition to temperature.
 I am planning to learn how to use Tassel to carry out GWAS (Genome-wide Association Studies) to identify the molecular markers linked to the parameters I have calculated.  Recently a version of Tassel based on R, aptly named RTassel, has been released and it would be cool to explore the possibilities of using this for GWAS analysis. 
-I would love to learn more and find more uses for R. Hopefully this is only the start of the data journey.
+I would love to learn more and find more uses for R. Hopefully this is only the start of my data journey.
 
 # My Data School Experience
 
